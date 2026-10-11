@@ -103,7 +103,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const closeShareBtn = document.getElementById('close-share-btn');
   const summaryCards = document.querySelectorAll('.summary-card');
   const sharePreviewText = document.getElementById('share-preview-text');
+  const shareBoxscoreVisual = document.getElementById('share-boxscore-visual');
+  const boxscorePreviewCanvas = document.getElementById('boxscore-preview-canvas');
   const copyPreviewBtn = document.getElementById('copy-preview-btn');
+  const shareImageBtn = document.getElementById('share-image-btn');
   const shareNativeBtn = document.getElementById('share-native-btn');
   const shareSmsBtn = document.getElementById('share-sms-btn');
   const shareEmailBtn = document.getElementById('share-email-btn');
@@ -961,7 +964,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const ring = document.createElement('div');
         ring.className = 'theme-magnifier-ring';
         document.body.appendChild(ring);
-        setTimeout(() => ring.remove(), 1400);
+        setTimeout(() => ring.remove(), 2300);
 
         transition.finished
           .catch(() => {})
@@ -999,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ring = document.createElement('div');
     ring.className = 'theme-magnifier-ring';
     document.body.appendChild(ring);
-    setTimeout(() => ring.remove(), 1400);
+    setTimeout(() => ring.remove(), 2300);
 
     document.body.appendChild(overlay);
 
@@ -1007,8 +1010,8 @@ document.addEventListener('DOMContentLoaded', () => {
       { clipPath: 'circle(0% at 50% 50%)' },
       { clipPath: 'circle(150vmax at 50% 50%)' }
     ], {
-      duration: 1350,
-      easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      duration: 2200,
+      easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
       fill: 'forwards'
     });
 
@@ -1222,55 +1225,136 @@ document.addEventListener('DOMContentLoaded', () => {
     const leadScore = Math.max(homeScoreVal, awayScoreVal);
     const trailScore = Math.min(homeScoreVal, awayScoreVal);
     const batting = isTopInning ? awayTeamName : homeTeamName;
+    const pitching = isTopInning ? homeTeamName : awayTeamName;
+    const isLateInnings = currentInning >= 7;
+    const isNinthOrLater = currentInning >= 9;
+    const lastHit = hitLogData && hitLogData.length > 0 ? hitLogData[0] : null;
 
-    // Stem 1: Tied Ballgame
+    // SITUATION 1: WALK-OFF / POTENTIAL WALK-OFF DRAMA (Bottom 9th or Extras)
+    if (!isTopInning && isNinthOrLater) {
+      if (homeScoreVal > awayScoreVal) {
+        const walkoffWinStems = [
+          `"BALLGAME! TOUCH 'EM ALL! ${homeTeamName} pulls off the walk-off thriller in the bottom of the ${ordInning}, conquering ${awayTeamName} ${homeScoreVal} to ${awayScoreVal}! Pandemonium on the field!"`,
+          `"SANTA MARIA! It is OVER! ${homeTeamName} walks it off in dramatic fashion right here in the ${ordInning}! Final score: ${homeTeamName} ${homeScoreVal}, ${awayTeamName} ${awayScoreVal}! What a ballgame!"`,
+          `"Put a big curly 'W' in the books! The dugout empties as ${homeTeamName} clinches the walk-off victory, taking down ${awayTeamName} ${homeScoreVal}-${awayScoreVal}!"`
+        ];
+        return walkoffWinStems[Math.floor(Math.random() * walkoffWinStems.length)];
+      } else if (diff === 0) {
+        const walkoffThreatStems = [
+          `"Hold onto your caps, folks! Bottom of the ${ordInning}, tied ${homeScoreVal}-${awayScoreVal} with ${outsStr}. ${homeTeamName} is literally ninety feet away from sending everyone home happy with one swing!"`,
+          `"Cardiac baseball in the bottom of the ${ordInning}! Deadlocked at ${homeScoreVal} apiece. Every fan in the stadium is on their feet as ${homeTeamName} looks to walk this baby off!"`,
+          `"It doesn't get any tighter than this! Tied ${homeScoreVal}-${awayScoreVal} in the bottom of the ${ordInning}. One mistake pitch from ${awayTeamName} and this game is officially over!"`
+        ];
+        return walkoffThreatStems[Math.floor(Math.random() * walkoffThreatStems.length)];
+      } else if (awayScoreVal > homeScoreVal && diff <= 2) {
+        const ninthInningRallyStems = [
+          `"Down to the absolute wire! ${awayTeamName} clinging to a ${leadScore}-${trailScore} lead in the bottom of the ${ordInning}, but ${homeTeamName} is digging in with ${outsStr}. Do not turn that dial!"`,
+          `"Last call for the home squad! Bottom of the ${ordInning}, ${awayTeamName} up ${leadScore}-${trailScore}. ${outsStr} on the board. ${homeTeamName} needs late-inning magic right now!"`
+        ];
+        return ninthInningRallyStems[Math.floor(Math.random() * ninthInningRallyStems.length)];
+      }
+    }
+
+    // SITUATION 2: EXTRA INNINGS (10th inning or beyond, Top or Bottom)
+    if (currentInning >= 10) {
+      const extraInningStems = [
+        `"Bonus baseball under the lights! We are deep into extra innings in the ${half} of the ${ordInning}, locked at ${homeScoreVal}-${awayScoreVal} with ${outsStr}. Pure endurance and grit on display!"`,
+        `"Free baseball for everyone! Into the ${ordInning} inning we go! ${homeTeamName} ${homeScoreVal}, ${awayTeamName} ${awayScoreVal}. The bullpens are burning through arms as both clubs fight tooth and nail!"`,
+        `"You couldn't script a more stubborn contest! Extra frames in the ${half} of the ${ordInning}. ${batting} batting with ${outsStr}. Who will be the hero today?"`
+      ];
+      return extraInningStems[Math.floor(Math.random() * extraInningStems.length)];
+    }
+
+    // SITUATION 3: TWO-OUT DRAMA (High Leverage Moment)
+    if (currentOuts === 2) {
+      const twoOutStems = [
+        `"Two down in the ${half} of the ${ordInning}! ${pitching} is just one single out away from wiggling out of trouble, but ${batting} refuses to go quietly here with the score ${leadScore}-${trailScore}!"`,
+        `"Two outs, nowhere to hide! The stadium is buzzing as ${batting} looks for a clutch two-out rally against ${pitching} in the ${half} of the ${ordInning}."`,
+        `"Backs against the wall with two outs in the ${half} of the ${ordInning}! ${leader ? `${leader} leads ${leadScore}-${trailScore}` : `Tied up at ${homeScoreVal}`}. Can ${batting} spark two-out lightning?"`
+      ];
+      // 50% chance to highlight 2-out drama if in a close game
+      if (diff <= 2 && Math.random() > 0.4) {
+        return twoOutStems[Math.floor(Math.random() * twoOutStems.length)];
+      }
+    }
+
+    // SITUATION 4: TIED BALLGAME (diff === 0)
     if (diff === 0) {
       if (homeScoreVal === 0) {
         const scorelessStems = [
           `"Welcome in baseball fans! We've got a classic pitchers' duel underway. Not a single run on the board as ${homeTeamName} and ${awayTeamName} are locked at 0-0 in the ${half} of the ${ordInning} with ${outsStr}."`,
           `"Zeroes across the scoreboard folks! Both starting arms are dealing pure fire. It's ${homeTeamName} 0, ${awayTeamName} 0 in the ${half} of the ${ordInning} with ${outsStr}. Who is gonna blink first?"`,
-          `"Defensive clinic out there today! Scoreless at 0-0 between ${homeTeamName} and ${awayTeamName} in the ${half} of the ${ordInning}."`
+          `"Defensive clinic out there today! Scoreless at 0-0 between ${homeTeamName} and ${awayTeamName} in the ${half} of the ${ordInning}. Web gems, pinpoint fastballs, and zero room for error!"`,
+          `"Still searching for that breakthrough swing! ${homeTeamName} 0, ${awayTeamName} 0 here in the ${half} of the ${ordInning}. Both hurlers have completely locked in!"`
         ];
         return scorelessStems[Math.floor(Math.random() * scorelessStems.length)];
       } else {
         const tiedStems = [
           `"Folks, we've got a dead heat! All knotted up at ${homeScoreVal} apiece as ${batting} steps in here in the ${half} of the ${ordInning} with ${outsStr}. Anyone's ballgame right now!"`,
           `"Back to square one! ${homeTeamName} and ${awayTeamName} are deadlocked at ${homeScoreVal} runs each in the ${half} of the ${ordInning}. The next big swing could decide this clash!"`,
-          `"You couldn't slip a sheet of paper between these two clubs today! Tied at ${homeScoreVal} to ${awayScoreVal} with ${outsStr} in the ${half} of the ${ordInning}!"`
+          `"You couldn't slip a sheet of paper between these two clubs today! Tied at ${homeScoreVal} to ${awayScoreVal} with ${outsStr} in the ${half} of the ${ordInning}!"`,
+          `"A seesaw war of attrition! Even-steven at ${homeScoreVal}-${awayScoreVal} in the ${half} of the ${ordInning}. Every single pitch has postseason intensity right now!"`,
+          `"Don't change that channel! We are all squared away at ${homeScoreVal} runs apiece in the ${half} of the ${ordInning}. Momentum hanging by a thread with ${outsStr} on the board!"`
         ];
         return tiedStems[Math.floor(Math.random() * tiedStems.length)];
       }
     }
 
-    // Stem 2: Crushing / Blowout (diff >= 4)
-    if (diff >= 4) {
-      const crushingStems = [
+    // SITUATION 5: CRUSHING / RUNAWAY BLOWOUT (diff >= 5)
+    if (diff >= 5) {
+      const blowoutStems = [
         `"And what an absolute shellacking we are witnessing! ${leader} is completely crushing ${trailer}, pouring it on for a commanding ${leadScore} to ${trailScore} lead in the ${half} of the ${ordInning}!"`,
         `"Hold onto your caps, folks, because ${leader} is running away with this one! An explosive offensive clinic has them blowing out ${trailer} ${leadScore}-${trailScore} in the ${half} of the ${ordInning} with ${outsStr}."`,
         `"Total and utter dominance from ${leader}! They are pulverizing the baseball today, leading ${leadScore} to ${trailScore} over a shell-shocked ${trailer} dugout in the ${half} of the ${ordInning}."`,
-        `"This one has turned into a runaway train! ${leader} is crushing ${trailer} by ${diff} runs, sitting pretty at ${leadScore}-${trailScore} in the ${half} of the ${ordInning}!"`
+        `"This one has turned into a runaway train! ${leader} is crushing ${trailer} by ${diff} runs, sitting pretty at ${leadScore}-${trailScore} in the ${half} of the ${ordInning}!"`,
+        `"Offensive fireworks on full display! ${leader} has broken this one wide open, piling on runs to lead ${leadScore} to ${trailScore} as ${trailer} struggles to stem the bleeding in the ${half} of the ${ordInning}."`,
+        `"A lopsided affair here at the yard! ${leader} cruising comfortably ahead ${leadScore}-${trailScore} over ${trailer} in the ${half} of the ${ordInning}. Complete command from start to finish!"`
       ];
-      return crushingStems[Math.floor(Math.random() * crushingStems.length)];
+      return blowoutStems[Math.floor(Math.random() * blowoutStems.length)];
     }
 
-    // Stem 3: Barely Scraping By / Nail-biter (diff === 1)
+    // SITUATION 6: LATE-INNING NAIL-BITER (diff === 1 && currentInning >= 7)
+    if (diff === 1 && isLateInnings) {
+      const lateNailBiterStems = [
+        `"Late-inning nail-biter alert! ${leader} is hanging onto a razor-thin 1-run lead, ${leadScore}-${trailScore} over ${trailer} in the ${half} of the ${ordInning} with ${outsStr}. Pure cardiac baseball!"`,
+        `"The tension in this ballpark is palpable! ${leader} leads by just a lone run, ${leadScore}-${trailScore}, heading deep into the ${ordInning} with ${outsStr}. One swing ties it, one swing changes everything!"`,
+        `"Edge of your seats, everybody! ${leader} protecting that precious 1-run cushion, up ${leadScore} to ${trailScore} over ${trailer} in the ${half} of the ${ordInning}. The closer is warming, but ${batting} has other plans!"`,
+        `"High drama in the late frames! ${leader} clinging to a 1-run advantage, ${leadScore}-${trailScore} in the ${half} of the ${ordInning}. Every pitch feels like a full count!"`
+      ];
+      return lateNailBiterStems[Math.floor(Math.random() * lateNailBiterStems.length)];
+    }
+
+    // SITUATION 7: 1-RUN GAME (EARLY OR MID INNINGS)
     if (diff === 1) {
       const scrapingStems = [
         `"Talk about edge-of-your-seat drama! ${leader} is barely scraping by with a razor-thin ${leadScore}-${trailScore} edge over ${trailer} in the ${half} of the ${ordInning} with ${outsStr}."`,
         `"Every single pitch is magnified right now! ${leader} is clinging for dear life to a fragile 1-run lead, up ${leadScore} to ${trailScore} as ${trailer} lurks just one swing away in the ${half} of the ${ordInning}!"`,
         `"A pure white-knuckle thriller, baseball fans! ${leader} is barely scraping by with a slim ${leadScore}-${trailScore} cushion. Tension is so thick in the ballpark you could cut it with a knife!"`,
-        `"Down to the wire! ${leader} holds the slimmest margin in sports—protecting a tight 1-run lead, ${leadScore}-${trailScore} over ${trailer} with ${outsStr} in the ${half} of the ${ordInning}!"`
+        `"Down to the wire! ${leader} holds the slimmest margin in sports—protecting a tight 1-run lead, ${leadScore}-${trailScore} over ${trailer} with ${outsStr} in the ${half} of the ${ordInning}!"`,
+        `"One single tally separates these two heavyweight rivals! ${leader} leads ${leadScore} to ${trailScore} in the ${half} of the ${ordInning} with ${outsStr}."`
       ];
       return scrapingStems[Math.floor(Math.random() * scrapingStems.length)];
     }
 
-    // Stem 4: Solid Lead (diff 2 or 3)
-    const solidStems = [
-      `"${leader} holding steady control right now! They carry a solid ${leadScore}-${trailScore} lead over ${trailer} as play continues in the ${half} of the ${ordInning} with ${outsStr}."`,
-      `"${leader} keeping ${trailer} at arm's length! It's a ${leadScore}-${trailScore} ballgame in the ${half} of the ${ordInning}. ${trailer} needs to string some hits together soon!"`,
-      `"Good situational baseball on display! ${leader} is in front ${leadScore} to ${trailScore} over ${trailer} in the ${half} of the ${ordInning} with ${outsStr}."`
+    // SITUATION 8: SOLID 2-3 RUN LEAD
+    if (diff <= 3) {
+      const solidStems = [
+        `"${leader} holding steady control right now! They carry a solid ${leadScore}-${trailScore} lead over ${trailer} as play continues in the ${half} of the ${ordInning} with ${outsStr}."`,
+        `"${leader} keeping ${trailer} at arm's length! It's a ${leadScore}-${trailScore} ballgame in the ${half} of the ${ordInning}. ${trailer} needs to string some hits together soon!"`,
+        `"Good situational baseball on display! ${leader} is in front ${leadScore} to ${trailScore} over ${trailer} in the ${half} of the ${ordInning} with ${outsStr}."`,
+        `"${leader} doing the little things right today—timely hitting and sharp glovework give them a ${leadScore}-${trailScore} advantage in the ${half} of the ${ordInning}."`,
+        `"A competitive, hard-fought contest! ${leader} up by ${diff} runs, ${leadScore}-${trailScore} over ${trailer} in the ${half} of the ${ordInning} with ${outsStr}."`
+      ];
+      return solidStems[Math.floor(Math.random() * solidStems.length)];
+    }
+
+    // SITUATION 9: 4-RUN COMFORTABLE LEAD
+    const comfortableStems = [
+      `"${leader} firmly in the driver's seat! They hold a 4-run cushion, leading ${leadScore} to ${trailScore} over ${trailer} in the ${half} of the ${ordInning} with ${outsStr}."`,
+      `"A disciplined offensive showing has ${leader} leading ${leadScore}-${trailScore} against ${trailer} in the ${half} of the ${ordInning}. ${trailer} has their work cut out for them!"`,
+      `"${leader} setting the pace with authority today! Ahead ${leadScore} to ${trailScore} over ${trailer} in the ${half} of the ${ordInning}."`
     ];
-    return solidStems[Math.floor(Math.random() * solidStems.length)];
+    return comfortableStems[Math.floor(Math.random() * comfortableStems.length)];
   }
 
   // --- Share Message Formatter ---
@@ -1289,14 +1373,257 @@ document.addEventListener('DOMContentLoaded', () => {
       case 'broadcast':
         return generateSportscastAnnouncerCall();
 
+      case 'boxscore':
+        return `⚾ BOX SCORE: ${homeTeamName} ${homeScoreVal} - ${awayScoreVal} ${awayTeamName} (${half} ${currentInning} • ${outsStr})`;
+
       default:
         return `${homeTeamName} ${homeScoreVal} - ${awayScoreVal} ${awayTeamName}`;
     }
   }
 
+  // --- High-Resolution Box Score Graphic Card Generator (HTML5 Canvas) ---
+  function renderBoxScoreToCanvas(targetCanvas) {
+    if (!targetCanvas) return;
+    const canvas = targetCanvas;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // Retina 2x resolution: 800 x 500 px
+    const width = 800;
+    const height = 520;
+    canvas.width = width;
+    canvas.height = height;
+
+    // Read active theme palette colors or fallback to rich ballpark aesthetic
+    const computed = window.getComputedStyle(document.body);
+    const bgBody = computed.getPropertyValue('--bg-body').trim() || '#0f172a';
+    const bgCard = computed.getPropertyValue('--bg-card').trim() || '#1e293b';
+    const accent = computed.getPropertyValue('--accent-color').trim() || '#38bdf8';
+    const textPrimary = computed.getPropertyValue('--text-primary').trim() || '#f8fafc';
+    const textSecondary = computed.getPropertyValue('--text-secondary').trim() || '#94a3b8';
+    const borderColor = computed.getPropertyValue('--border-color').trim() || '#334155';
+
+    // 1. Background Gradient
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+    bgGrad.addColorStop(0, bgCard);
+    bgGrad.addColorStop(1, bgBody);
+    ctx.fillStyle = bgGrad;
+    ctx.beginPath();
+    ctx.roundRect(0, 0, width, height, 28);
+    ctx.fill();
+
+    // 2. Subtle Outer Border & Accent Glow Header
+    ctx.strokeStyle = borderColor;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // Top Header Banner
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
+    ctx.beginPath();
+    ctx.roundRect(16, 16, width - 32, 64, 18);
+    ctx.fill();
+
+    // Title / Header Text
+    ctx.fillStyle = accent;
+    ctx.font = '900 19px system-ui, -apple-system, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('⚾ OFFICIAL BASEBALL BOX SCORE', 38, 48);
+
+    // Current Game Status Badge (Inning & Outs)
+    const half = isTopInning ? 'TOP' : 'BOT';
+    const statusText = `${half} ${currentInning}  •  ${currentOuts} ${currentOuts === 1 ? 'OUT' : 'OUTS'}`;
+    ctx.textAlign = 'right';
+    ctx.font = '800 17px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = textPrimary;
+    ctx.fillText(statusText, width - 38, 48);
+
+    // 3. Main Matchup Score Board Area
+    // Team Cards
+    const cardY = 100;
+    const cardHeight = 220;
+    const cardWidth = (width - 32 - 20) / 2; // Home and Away cards
+
+    // Helper for rounded team card
+    function drawTeamBox(x, y, w, h, name, score, isBatting, isHome) {
+      ctx.save();
+      // Background
+      ctx.fillStyle = isBatting ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.25)';
+      ctx.beginPath();
+      ctx.roundRect(x, y, w, h, 20);
+      ctx.fill();
+
+      // Active Batting Border Accent
+      ctx.strokeStyle = isBatting ? accent : 'rgba(255, 255, 255, 0.08)';
+      ctx.lineWidth = isBatting ? 3.5 : 2;
+      ctx.stroke();
+
+      // Offense Indicator Badge if batting
+      if (isBatting) {
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.roundRect(x + w - 95, y + 16, 80, 24, 12);
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 11px system-ui, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('AT BAT', x + w - 55, y + 28);
+      }
+
+      // Team Label Tag (HOME / AWAY)
+      ctx.fillStyle = textSecondary;
+      ctx.font = '800 13px system-ui, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
+      ctx.fillText(isHome ? 'HOME TEAM' : 'AWAY TEAM', x + 24, y + 22);
+
+      // Team Name
+      ctx.fillStyle = textPrimary;
+      ctx.font = '900 32px system-ui, sans-serif';
+      let displayName = name;
+      if (ctx.measureText(displayName).width > w - 120) {
+        displayName = displayName.substring(0, 11) + '…';
+      }
+      ctx.fillText(displayName, x + 24, y + 46);
+
+      // Score Value
+      ctx.fillStyle = textPrimary;
+      ctx.font = '900 84px system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(score.toString(), x + (w / 2), y + 145);
+
+      ctx.restore();
+    }
+
+    // Draw Away (Left) and Home (Right)
+    const awayBatting = isTopInning;
+    const homeBatting = !isTopInning;
+    drawTeamBox(16, cardY, cardWidth, cardHeight, awayTeamName, awayScoreVal, awayBatting, false);
+    drawTeamBox(16 + cardWidth + 20, cardY, cardWidth, cardHeight, homeTeamName, homeScoreVal, homeBatting, true);
+
+    // VS Dash Divider between cards
+    ctx.fillStyle = textSecondary;
+    ctx.font = '900 24px system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('VS', width / 2, cardY + (cardHeight / 2));
+
+    // 4. Bottom Stats Strip (Pitch Count & Game Time & Hits)
+    const bottomY = 340;
+    const bottomHeight = 140;
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    ctx.beginPath();
+    ctx.roundRect(16, bottomY, width - 32, bottomHeight, 20);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Stats Columns: 3 columns (Game Time, Pitch Counter, Latest Hit Action)
+    const colWidth = (width - 32) / 3;
+
+    // Stat 1: Game Clock
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'top';
+    ctx.fillStyle = textSecondary;
+    ctx.font = '800 13px system-ui, sans-serif';
+    ctx.fillText('GAME TIME', 16 + (colWidth * 0.5), bottomY + 22);
+
+    ctx.fillStyle = textPrimary;
+    ctx.font = '900 28px system-ui, sans-serif';
+    ctx.fillText(formatTime(secondsElapsed), 16 + (colWidth * 0.5), bottomY + 48);
+
+    ctx.fillStyle = textSecondary;
+    ctx.font = '700 12px system-ui, sans-serif';
+    ctx.fillText(isTimerRunning ? '● CLOCK RUNNING' : '⏸ PAUSED', 16 + (colWidth * 0.5), bottomY + 88);
+
+    // Stat 2: Pitches / Pitch Count
+    ctx.fillStyle = textSecondary;
+    ctx.font = '800 13px system-ui, sans-serif';
+    ctx.fillText('PITCH COUNT', 16 + (colWidth * 1.5), bottomY + 22);
+
+    ctx.fillStyle = accent;
+    ctx.font = '900 28px system-ui, sans-serif';
+    const totalP = pitchCounterAdvanced ? (ballsCount + strikesCount) : simplePitches;
+    ctx.fillText(`${totalP} PITCHES`, 16 + (colWidth * 1.5), bottomY + 48);
+
+    ctx.fillStyle = textSecondary;
+    ctx.font = '700 12px system-ui, sans-serif';
+    if (pitchCounterAdvanced && totalP > 0) {
+      const sPct = Math.round((strikesCount / totalP) * 100);
+      const bPct = Math.round((ballsCount / totalP) * 100);
+      ctx.fillText(`${strikesCount} Strikes (${sPct}%) • ${ballsCount} Balls (${bPct}%)`, 16 + (colWidth * 1.5), bottomY + 88);
+    } else {
+      ctx.fillText(`Count Logged`, 16 + (colWidth * 1.5), bottomY + 88);
+    }
+
+    // Stat 3: Total Hits & Latest Play
+    ctx.fillStyle = textSecondary;
+    ctx.font = '800 13px system-ui, sans-serif';
+    ctx.fillText('LATEST PLAY', 16 + (colWidth * 2.5), bottomY + 22);
+
+    ctx.fillStyle = textPrimary;
+    ctx.font = '900 22px system-ui, sans-serif';
+    if (hitLogData && hitLogData.length > 0) {
+      const last = hitLogData[0];
+      const shortDesc = `${last.player || 'Batter'} - ${last.outcome}`;
+      ctx.fillText(shortDesc.length > 18 ? shortDesc.substring(0, 16) + '…' : shortDesc, 16 + (colWidth * 2.5), bottomY + 52);
+
+      ctx.fillStyle = textSecondary;
+      ctx.font = '700 12px system-ui, sans-serif';
+      ctx.fillText(`${last.location} • ${last.inning}`, 16 + (colWidth * 2.5), bottomY + 88);
+    } else {
+      ctx.fillText('No Hits Logged', 16 + (colWidth * 2.5), bottomY + 52);
+      ctx.fillStyle = textSecondary;
+      ctx.font = '700 12px system-ui, sans-serif';
+      ctx.fillText('Clean Sheet', 16 + (colWidth * 2.5), bottomY + 88);
+    }
+
+    // Vertical Divider lines in bottom bar
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(16 + colWidth, bottomY + 16);
+    ctx.lineTo(16 + colWidth, bottomY + bottomHeight - 16);
+    ctx.moveTo(16 + (colWidth * 2), bottomY + 16);
+    ctx.lineTo(16 + (colWidth * 2), bottomY + bottomHeight - 16);
+    ctx.stroke();
+
+    // 5. Watermark Footer
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+    ctx.font = '700 11px system-ui, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'bottom';
+    ctx.fillText('Generated with Baseball Score Keeper', width - 24, height - 8);
+  }
+
   function updateSharePreview() {
-    if (!sharePreviewText) return;
-    sharePreviewText.textContent = generateShareMessage(selectedShareFormat);
+    if (selectedShareFormat === 'boxscore') {
+      if (sharePreviewText) sharePreviewText.style.display = 'none';
+      if (shareBoxscoreVisual) {
+        shareBoxscoreVisual.style.display = 'flex';
+        renderBoxScoreToCanvas(boxscorePreviewCanvas);
+      }
+    } else {
+      if (shareBoxscoreVisual) shareBoxscoreVisual.style.display = 'none';
+      if (sharePreviewText) {
+        sharePreviewText.style.display = 'block';
+        sharePreviewText.textContent = generateShareMessage(selectedShareFormat);
+      }
+    }
+  }
+
+  // Helper to get Box Score Image as Blob or DataURL
+  function getBoxScoreImageBlob(callback) {
+    // Render offscreen canvas to guarantee maximum 800x520 crispness
+    const offscreen = document.createElement('canvas');
+    renderBoxScoreToCanvas(offscreen);
+    offscreen.toBlob((blob) => {
+      callback(blob, offscreen.toDataURL('image/png'));
+    }, 'image/png');
   }
 
   // --- Share Drawer Actions ---
@@ -1892,6 +2219,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Share Channels
+  if (shareImageBtn) {
+    shareImageBtn.addEventListener('click', () => {
+      triggerHaptic([30, 40]);
+      const originalHtml = shareImageBtn.innerHTML;
+      shareImageBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>Generating...</span>`;
+
+      getBoxScoreImageBlob((blob, dataUrl) => {
+        const fileName = `BoxScore_${homeTeamName}_vs_${awayTeamName}_${Date.now()}.png`;
+
+        // If Web Share API supports file sharing
+        if (navigator.canShare && blob) {
+          const file = new File([blob], fileName, { type: 'image/png' });
+          if (navigator.canShare({ files: [file] })) {
+            navigator.share({
+              files: [file],
+              title: `${homeTeamName} vs ${awayTeamName} - Box Score`,
+              text: `Official Box Score: ${homeTeamName} ${homeScoreVal} - ${awayScoreVal} ${awayTeamName}`
+            }).then(() => {
+              showInningToast('SHARED', 'Box score image shared');
+              shareImageBtn.innerHTML = originalHtml;
+            }).catch(() => {
+              // User cancelled share or fallback to download
+              shareImageBtn.innerHTML = originalHtml;
+            });
+            return;
+          }
+        }
+
+        // Direct Download Fallback (works everywhere on mobile & desktop)
+        const downloadLink = document.createElement('a');
+        downloadLink.download = fileName;
+        downloadLink.href = dataUrl;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+
+        showInningToast('SAVED', 'Box score image downloaded');
+        shareImageBtn.innerHTML = `<i class="fa-solid fa-check"></i><span>Saved!</span>`;
+        setTimeout(() => {
+          shareImageBtn.innerHTML = originalHtml;
+        }, 1800);
+      });
+    });
+  }
+
   if (shareNativeBtn) {
     shareNativeBtn.addEventListener('click', () => {
       const text = generateShareMessage(selectedShareFormat);

@@ -1610,11 +1610,46 @@ button {
   margin: 0;
 }
 
-/* Clean 4-Button Channels Grid */
+/* Clean Channels Grid (Supports Native, Image, SMS, Email, Copy) */
 .share-channels-grid.clean-channels-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+}
+
+@media (max-width: 360px) {
+  .share-channels-grid.clean-channels-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.share-channel-btn.image-share {
+  background-color: var(--drawer-card);
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.share-channel-btn.image-share:hover {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+/* Box Score Visual Preview Graphic inside Share Drawer */
+.share-boxscore-visual {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.share-boxscore-visual canvas {
+  width: 100%;
+  max-width: 340px;
+  height: auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  display: block;
 }
 
 .share-channel-btn {
@@ -1623,12 +1658,12 @@ button {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 12px 6px;
+  padding: 12px 4px;
   border-radius: 14px;
   border: 2px solid var(--drawer-border);
   background-color: var(--drawer-card);
   color: var(--text-primary);
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 800;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
@@ -2457,12 +2492,12 @@ body.in-theme-transition * {
 /* CSS View Transitions API:
    Slow, smooth 1.35s expansion curve revealing new theme inside the circular lens */
 ::view-transition-group(root) {
-  animation-duration: 1.35s;
+  animation-duration: 2.2s;
 }
 
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
@@ -2475,7 +2510,7 @@ body.in-theme-transition * {
 }
 
 ::view-transition-new(root) {
-  animation: themeMagnifierCircle 1.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: themeMagnifierCircle 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
   z-index: 2;
   will-change: clip-path;
   mix-blend-mode: normal;
@@ -2506,7 +2541,7 @@ body.in-theme-transition * {
   z-index: 999999;
   will-change: transform, opacity;
   transform: translateZ(0) scale(0);
-  animation: ringExpandGpu 1.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: ringExpandGpu 2.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes ringExpandGpu {
@@ -2514,11 +2549,11 @@ body.in-theme-transition * {
     transform: translateZ(0) scale(0);
     opacity: 1;
   }
-  80% {
+  85% {
     opacity: 0.95;
   }
   100% {
-    transform: translateZ(0) scale(38);
+    transform: translateZ(0) scale(40);
     opacity: 0;
   }
 }
