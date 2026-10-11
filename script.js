@@ -1,6 +1,32 @@
 // script.js - Clean, Modern Mobile Baseball Scorekeeper
 
 document.addEventListener('DOMContentLoaded', () => {
+  // --- Prevent Pull-To-Refresh on Scrollable Drawers ---
+  function preventPullToRefreshOnScrollable(el) {
+    if (!el) return;
+    let startY = 0;
+    
+    el.addEventListener('touchstart', (e) => {
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    el.addEventListener('touchmove', (e) => {
+      const currentY = e.touches[0].clientY;
+      const diffY = currentY - startY;
+      
+      // If container is at the very top and user is swiping down (pulling down)
+      if (el.scrollTop <= 0 && diffY > 0) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    }, { passive: false });
+  }
+
+  // Apply to all drawers and scrollable drawer bodies
+  document.querySelectorAll('.settings-drawer').forEach(preventPullToRefreshOnScrollable);
+  document.querySelectorAll('.drawer-body').forEach(preventPullToRefreshOnScrollable);
+  document.querySelectorAll('.advanced-drawer-body').forEach(preventPullToRefreshOnScrollable);
   // --- Game State Variables ---
   let homeScoreVal = 0;
   let awayScoreVal = 0;
