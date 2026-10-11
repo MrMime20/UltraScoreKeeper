@@ -1633,46 +1633,17 @@ button {
   margin: 0;
 }
 
-/* Clean Channels Grid (Supports Native, Image, SMS, Email, Copy) */
+/* Clean 4-Button Channels Grid */
 .share-channels-grid.clean-channels-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
 }
 
 @media (max-width: 360px) {
   .share-channels-grid.clean-channels-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
   }
-}
-
-.share-channel-btn.image-share {
-  background-color: var(--drawer-card);
-  border-color: var(--accent-color);
-  color: var(--accent-color);
-}
-
-.share-channel-btn.image-share:hover {
-  background-color: var(--accent-color);
-  color: #ffffff;
-}
-
-/* Box Score Visual Preview Graphic inside Share Drawer */
-.share-boxscore-visual {
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 4px 0;
-}
-
-.share-boxscore-visual canvas {
-  width: 100%;
-  max-width: 340px;
-  height: auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-  display: block;
 }
 
 .share-channel-btn {
