@@ -1,6 +1,50 @@
 // script.js - Clean, Modern Mobile Baseball Scorekeeper
 
 document.addEventListener('DOMContentLoaded', () => {
+  // --- Floating Scroll To Top Button ---
+  const scrollTopBtn = document.getElementById('scroll-top-btn');
+
+  function checkScrollPosition() {
+    if (!scrollTopBtn) return;
+    
+    // Check main window or any open drawer/container scroll position
+    const windowScrolled = window.scrollY > 150 || document.documentElement.scrollTop > 150;
+    const settingsDrawerScrolled = document.querySelector('.settings-drawer')?.scrollTop > 150 || false;
+    const drawerBodyScrolled = document.querySelector('.drawer-body')?.scrollTop > 150 || false;
+    const advancedBodyScrolled = document.querySelector('.advanced-drawer-body')?.scrollTop > 150 || false;
+    const hitListScrolled = document.querySelector('.logged-hits-list')?.scrollTop > 100 || false;
+
+    if (windowScrolled || settingsDrawerScrolled || drawerBodyScrolled || advancedBodyScrolled || hitListScrolled) {
+      scrollTopBtn.classList.add('show');
+    } else {
+      scrollTopBtn.classList.remove('show');
+    }
+  }
+
+  // Listen to window scroll
+  window.addEventListener('scroll', checkScrollPosition, { passive: true });
+
+  // Listen to scroll inside scrollable drawers and hit lists
+  document.querySelectorAll('.settings-drawer, .drawer-body, .advanced-drawer-body, .logged-hits-list').forEach(el => {
+    el.addEventListener('scroll', checkScrollPosition, { passive: true });
+  });
+
+  if (scrollTopBtn) {
+    scrollTopBtn.addEventListener('click', () => {
+      triggerHaptic(20);
+      
+      // Smooth scroll main window
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      document.documentElement.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Smooth scroll any currently active drawers or lists back to the top
+      document.querySelectorAll('.settings-drawer, .drawer-body, .advanced-drawer-body, .logged-hits-list').forEach(el => {
+        if (el.scrollTop > 0) {
+          el.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      });
+    });
+  }
   // --- Prevent Pull-To-Refresh on Scrollable Drawers ---
   function preventPullToRefreshOnScrollable(el) {
     if (!el) return;

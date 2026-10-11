@@ -2991,3 +2991,47 @@ body.in-theme-transition * {
   scrollbar-width: auto !important;
   scrollbar-color: var(--border-color) var(--drawer-card) !important;
 }
+
+/* Floating Scroll to Top Button */
+.scroll-top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  border: 3px solid var(--border-color);
+  box-shadow: 0 6px 20px var(--shadow-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  z-index: 99999;
+  opacity: 0;
+  transform: translateY(20px) scale(0.8);
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.2s ease, 
+              border-color 0.2s ease;
+}
+
+.scroll-top-btn.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+.scroll-top-btn:hover {
+  transform: translateY(-2px) scale(1.06);
+  background-color: var(--accent-color);
+  color: #ffffff;
+  border-color: var(--accent-color);
+}
+
+.scroll-top-btn:active {
+  transform: scale(0.92);
+}
