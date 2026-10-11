@@ -78,6 +78,52 @@
       </div>
     </footer>
 
+    <!-- Pitch Counter Row (Simple or Advanced Mode) -->
+    <section class="pitch-counter-row" id="pitch-counter-section" style="display: none;" aria-label="Pitch Counter">
+      <!-- Simple Pitch Counter View -->
+      <div class="pitch-view-simple" id="pitch-view-simple">
+        <button type="button" class="pitch-capsule-btn" id="pitch-simple-btn" title="Tap to add pitch, hold to remove">
+          <span class="pitch-capsule-title">PITCH</span>
+          <span class="pitch-capsule-num" id="pitch-simple-val">0</span>
+        </button>
+        <div class="pitch-stats-block" id="pitch-simple-stats">
+          <div class="pitch-stat-line">
+            <span class="pitch-stat-label">P# =</span>
+            <span class="pitch-stat-value" id="pitch-total-stat-simple">0</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Pitch Counter View -->
+      <div class="pitch-view-advanced" id="pitch-view-advanced" style="display: none;">
+        <div class="pitch-split-capsule" id="pitch-split-capsule">
+          <button type="button" class="pitch-split-side ball-side" id="pitch-ball-side" title="Tap to add Ball, hold to remove">
+            <span class="pitch-split-title">B</span>
+            <span class="pitch-split-num" id="pitch-balls-val">0</span>
+          </button>
+          <div class="pitch-split-separator"></div>
+          <button type="button" class="pitch-split-side strike-side" id="pitch-strike-side" title="Tap to add Strike, hold to remove">
+            <span class="pitch-split-title">S</span>
+            <span class="pitch-split-num" id="pitch-strikes-val">0</span>
+          </button>
+        </div>
+        <div class="pitch-stats-block advanced-stats" id="pitch-advanced-stats">
+          <div class="pitch-stat-line">
+            <span class="pitch-stat-label">S% =</span>
+            <span class="pitch-stat-value" id="pitch-strike-pct">0%</span>
+          </div>
+          <div class="pitch-stat-line">
+            <span class="pitch-stat-label">P# =</span>
+            <span class="pitch-stat-value" id="pitch-total-stat-adv">0</span>
+          </div>
+          <div class="pitch-stat-line">
+            <span class="pitch-stat-label">B% =</span>
+            <span class="pitch-stat-value" id="pitch-ball-pct">0%</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- Advanced Tools Button -->
     <button type="button" class="advanced-tools-btn" id="advanced-tools-btn" aria-label="Advanced Tools" title="Advanced Tools">
       <i class="fa-solid fa-screwdriver-wrench"></i>
@@ -339,9 +385,9 @@
         <div class="drawer-body advanced-drawer-body">
           <div class="canvas-modules-list" id="canvas-modules-list">
 
-            <!-- Module 1: Hit Log (Canvas Module Style) -->
-            <div class="canvas-module open" id="module-hit-log">
-              <div class="module-header" id="module-hit-log-header" role="button" tabindex="0" aria-expanded="true">
+            <!-- Module 1: Hit Log (Canvas Module Style - Default Collapsed) -->
+            <div class="canvas-module collapsed" id="module-hit-log">
+              <div class="module-header" id="module-hit-log-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="module-header-left">
                   <i class="fa-solid fa-chevron-down module-chevron" id="chevron-hit-log"></i>
                   <span class="module-title-text"><i class="fa-solid fa-baseball"></i> Hit Log</span>
@@ -366,17 +412,17 @@
                       <div class="hit-field-block">
                         <label for="hit-outcome-select" class="hit-field-label">Outcome</label>
                         <select id="hit-outcome-select" class="hit-dropdown">
-                          <option value="Single">Single (1B)</option>
-                          <option value="Double">Double (2B)</option>
-                          <option value="Triple">Triple (3B)</option>
-                          <option value="Home Run">Home Run (HR)</option>
-                          <option value="Flyout">Flyout (Out)</option>
-                          <option value="Groundout">Groundout (Out)</option>
-                          <option value="Strikeout">Strikeout (K)</option>
-                          <option value="Walk">Walk (BB)</option>
-                          <option value="Error - 1st">Reached 1st on Error</option>
-                          <option value="Error - 2nd">Reached 2nd on Error</option>
-                          <option value="Error - 3rd">Reached 3rd on Error</option>
+                          <option value="Single">Single</option>
+                          <option value="Double">Double</option>
+                          <option value="Triple">Triple</option>
+                          <option value="Home Run">Home Run</option>
+                          <option value="Pop-out">Pop-out</option>
+                          <option value="Line-out">Line-out</option>
+                          <option value="Flyout">Flyout</option>
+                          <option value="Groundout">Groundout</option>
+                          <option value="Reached on Error">Reached on Error</option>
+                          <option value="Strikeout">Strikeout</option>
+                          <option value="Walk">Walk</option>
                           <option value="Foul Ball">Foul Ball</option>
                         </select>
                       </div>
@@ -386,7 +432,7 @@
                     <div class="diamond-section-block" id="diamond-section-block">
                       <div class="diamond-header-row">
                         <label class="hit-field-label">Field Location</label>
-                        <span class="hit-location-tag" id="hit-location-tag">Second Base (2B)</span>
+                        <span class="hit-location-tag" id="hit-location-tag">Second Base</span>
                       </div>
 
                       <!-- Interactive Baseball Diamond (Snug Box Fitted to Field) -->
@@ -460,7 +506,61 @@
               </div>
             </div>
 
+            <!-- Module 2: Pitch Counter (Canvas Module Style - Default Collapsed) -->
+            <div class="canvas-module collapsed" id="module-pitch-counter">
+              <div class="module-header" id="module-pitch-counter-header" role="button" tabindex="0" aria-expanded="false">
+                <div class="module-header-left">
+                  <i class="fa-solid fa-chevron-down module-chevron" id="chevron-pitch-counter"></i>
+                  <span class="module-title-text"><i class="fa-solid fa-calculator"></i> Pitch Counter</span>
+                </div>
+                <div class="module-header-right">
+                  <span class="module-badge" id="pitch-counter-badge">Disabled</span>
+                </div>
+              </div>
+
+              <div class="module-collapse-wrapper" id="module-pitch-counter-wrapper">
+                <div class="module-body" id="module-pitch-counter-body">
+                  <div class="pitch-settings-card">
+                    <label class="pitch-checkbox-row">
+                      <input type="checkbox" id="enable-pitch-counter-chk" class="pitch-checkbox" />
+                      <span class="pitch-checkbox-label">Enable Pitch Counter</span>
+                    </label>
+
+                    <label class="pitch-checkbox-row">
+                      <input type="checkbox" id="advanced-pitch-counter-chk" class="pitch-checkbox" />
+                      <span class="pitch-checkbox-label">Activate Advanced Pitch Counter</span>
+                    </label>
+
+                    <div class="pitch-settings-hint">
+                      <i class="fa-solid fa-circle-info"></i>
+                      <span>Simple mode tracks total pitches. Advanced mode logs Balls and Strikes with live Strike% and Ball%. Tap to add, hold to remove.</span>
+                    </div>
+
+                    <button type="button" class="action-btn" id="reset-pitches-btn">
+                      <i class="fa-solid fa-rotate-left"></i>
+                      <span>Reset Pitch Count (0)</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reset Game Confirmation Modal -->
+    <div class="settings-backdrop reset-confirm-backdrop" id="reset-confirm-backdrop" aria-hidden="true">
+      <div class="reset-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-confirm-title">
+        <div class="reset-confirm-icon">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h3 id="reset-confirm-title">Start New Game?</h3>
+        <p class="reset-confirm-desc">This will reset all scores, outs, innings, game clock, and hit log from saved storage. This action cannot be undone.</p>
+        <div class="reset-confirm-actions">
+          <button type="button" class="reset-cancel-btn" id="reset-confirm-cancel-btn">Cancel</button>
+          <button type="button" class="reset-proceed-btn" id="reset-confirm-proceed-btn">Reset Game</button>
         </div>
       </div>
     </div>

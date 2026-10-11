@@ -691,6 +691,244 @@ button {
 }
 
 /* ========================================================================= */
+/* Pitch Counter Main Screen Section & Controls                              */
+/* ========================================================================= */
+
+.pitch-counter-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  -webkit-user-select: none;
+  animation: fadeInPitchRow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInPitchRow {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pitch-view-simple,
+.pitch-view-advanced {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+/* Simple Mode Capsule Button */
+.pitch-capsule-btn {
+  flex: 1.15;
+  height: 84px;
+  border-radius: 42px;
+  border: 5px solid var(--border-color);
+  background-color: var(--bg-card);
+  box-shadow: 0 6px 20px var(--shadow-color);
+  color: var(--text-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none !important;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.35s ease, 
+              border-color 0.35s ease, 
+              box-shadow 0.35s ease;
+}
+
+.pitch-capsule-btn:hover {
+  transform: scale(1.02);
+}
+
+.pitch-capsule-btn:active {
+  transform: scale(0.96);
+}
+
+.pitch-capsule-title {
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: 1.6px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.pitch-capsule-num {
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* Advanced Mode Split Capsule */
+.pitch-split-capsule {
+  flex: 1.15;
+  height: 84px;
+  border-radius: 42px;
+  border: 5px solid var(--border-color);
+  background-color: var(--bg-card);
+  box-shadow: 0 6px 20px var(--shadow-color);
+  color: var(--text-primary);
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none !important;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), 
+              background-color 0.35s ease, 
+              border-color 0.35s ease, 
+              box-shadow 0.35s ease;
+}
+
+.pitch-split-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  cursor: pointer;
+  touch-action: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.pitch-split-side:active {
+  background-color: rgba(0, 0, 0, 0.08);
+  transform: scale(0.96);
+}
+
+[data-theme="dark"] .pitch-split-side:active,
+[data-theme="neon"] .pitch-split-side:active {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.pitch-split-separator {
+  width: 4px;
+  background-color: var(--border-color);
+}
+
+.pitch-split-title {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+.pitch-split-num {
+  font-size: 32px;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+/* Pitch Counter Stats on Right */
+.pitch-stats-block {
+  flex: 0.85;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding-left: 6px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.pitch-stats-block.advanced-stats {
+  gap: 2px;
+}
+
+.pitch-stat-line {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-weight: 900;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.pitch-view-simple .pitch-stat-line {
+  font-size: 26px;
+}
+
+.pitch-view-advanced .pitch-stat-line {
+  font-size: 20px;
+}
+
+.pitch-stat-label {
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.pitch-stat-value {
+  font-weight: 900;
+}
+
+/* Pitch Counter Module Controls in Drawer */
+.pitch-settings-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background-color: var(--drawer-bg);
+  border: 2px solid var(--drawer-border);
+  border-radius: 16px;
+  padding: 16px 14px;
+}
+
+.pitch-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pitch-checkbox {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.pitch-checkbox-label {
+  cursor: pointer;
+}
+
+.pitch-settings-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background-color: var(--drawer-card);
+  border: 1px solid var(--drawer-border);
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.pitch-settings-hint i {
+  color: var(--accent-color);
+  margin-top: 2px;
+  font-size: 14px;
+}
+
+/* ========================================================================= */
 /* Advanced Tools Button                                                     */
 /* ========================================================================= */
 
@@ -782,6 +1020,111 @@ button {
 
 .settings-backdrop.open .settings-drawer {
   transform: translateY(0);
+}
+
+/* Reset Confirmation Modal Dialog */
+.reset-confirm-backdrop {
+  align-items: center;
+  justify-content: center;
+  z-index: 250;
+  padding: 20px;
+}
+
+.reset-confirm-dialog {
+  width: 100%;
+  max-width: 360px;
+  background-color: var(--drawer-bg);
+  border-radius: 26px;
+  border: 4px solid var(--border-color);
+  box-shadow: 0 16px 48px var(--shadow-color);
+  padding: 26px 20px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  transform: scale(0.92);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease;
+  color: var(--text-primary);
+}
+
+.reset-confirm-backdrop.open .reset-confirm-dialog {
+  transform: scale(1);
+}
+
+.reset-confirm-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.reset-confirm-dialog h3 {
+  font-size: 19px;
+  font-weight: 900;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.reset-confirm-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+.reset-confirm-actions {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  margin-top: 6px;
+}
+
+.reset-cancel-btn,
+.reset-proceed-btn {
+  flex: 1;
+  height: 46px;
+  border-radius: 23px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.2s ease, background-color 0.2s ease;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reset-cancel-btn {
+  background-color: var(--drawer-card);
+  border: 2px solid var(--drawer-border);
+  color: var(--text-primary);
+}
+
+.reset-cancel-btn:hover {
+  background-color: var(--bg-card);
+  border-color: var(--border-color);
+}
+
+.reset-proceed-btn {
+  background-color: #ef4444;
+  border: 2px solid #ef4444;
+  color: #ffffff;
+}
+
+.reset-proceed-btn:hover {
+  background-color: #dc2626;
+  border-color: #dc2626;
+}
+
+.reset-cancel-btn:active,
+.reset-proceed-btn:active {
+  transform: scale(0.96);
 }
 
 .drawer-header {
@@ -1438,9 +1781,10 @@ button {
 .module-collapse-wrapper {
   display: grid;
   grid-template-rows: 1fr;
-  transition: grid-template-rows 0.38s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+  transition: grid-template-rows 0.42s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.32s ease;
   overflow: hidden;
   opacity: 1;
+  will-change: grid-template-rows, opacity;
 }
 
 .canvas-module.collapsed .module-collapse-wrapper {
@@ -1454,13 +1798,14 @@ button {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  transition: padding 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: padding 0.42s cubic-bezier(0.2, 0.8, 0.2, 1);
+  overflow: hidden;
 }
 
 .canvas-module.collapsed .module-body {
   padding-top: 0;
   padding-bottom: 0;
-  visibility: hidden;
+  overflow: hidden;
 }
 
 /* Hit Form Card */

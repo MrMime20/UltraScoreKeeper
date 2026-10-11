@@ -11,6 +11,18 @@ document.addEventListener('DOMContentLoaded', () => {
   let isTimerRunning = false;
   let timerInterval = null;
 
+  // High-precision clock math: tracks original start time and accumulated paused duration
+  let clockStartedAt = null; // Timestamp (ms) when clock first started in this run
+  let accumulatedPausedMs = 0; // Total duration (ms) spent in pause
+  let lastPausedAt = null; // Timestamp (ms) when paused
+
+  // Pitch Counter Variables
+  let pitchCounterEnabled = false;
+  let pitchCounterAdvanced = false;
+  let simplePitches = 0;
+  let ballsCount = 0;
+  let strikesCount = 0;
+
   let homeTeamName = localStorage.getItem('baseball_home_team') || 'Home';
   let awayTeamName = localStorage.getItem('baseball_away_team') || 'Away';
   let selectedShareFormat = 'basic'; // 'basic', 'standard', 'broadcast'
@@ -40,6 +52,31 @@ document.addEventListener('DOMContentLoaded', () => {
   const timerEl = document.getElementById('timer');
   const timerIcon = document.getElementById('timer-icon');
 
+  // Pitch Counter DOM Elements
+  const pitchCounterSection = document.getElementById('pitch-counter-section');
+  const pitchViewSimple = document.getElementById('pitch-view-simple');
+  const pitchViewAdvanced = document.getElementById('pitch-view-advanced');
+
+  // Pitch Simple View Elements
+  const pitchSimpleBtn = document.getElementById('pitch-simple-btn');
+  const pitchSimpleVal = document.getElementById('pitch-simple-val');
+  const pitchTotalStatSimple = document.getElementById('pitch-total-stat-simple');
+
+  // Pitch Advanced View Elements
+  const pitchBallSide = document.getElementById('pitch-ball-side');
+  const pitchBallsVal = document.getElementById('pitch-balls-val');
+  const pitchStrikeSide = document.getElementById('pitch-strike-side');
+  const pitchStrikesVal = document.getElementById('pitch-strikes-val');
+  const pitchStrikePct = document.getElementById('pitch-strike-pct');
+  const pitchTotalStatAdv = document.getElementById('pitch-total-stat-adv');
+  const pitchBallPct = document.getElementById('pitch-ball-pct');
+
+  // Pitch Counter Module Elements in Drawer
+  const enablePitchCounterChk = document.getElementById('enable-pitch-counter-chk');
+  const advancedPitchCounterChk = document.getElementById('advanced-pitch-counter-chk');
+  const resetPitchesBtn = document.getElementById('reset-pitches-btn');
+  const pitchCounterBadge = document.getElementById('pitch-counter-badge');
+
   // Settings Elements
   const settingsBtn = document.getElementById('settings-btn');
   const settingsBackdrop = document.getElementById('settings-backdrop');
@@ -54,6 +91,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalTimerResetBtn = document.getElementById('modal-timer-reset-btn');
   const clearRunsBtn = document.getElementById('clear-runs-btn');
   const resetGameBtn = document.getElementById('reset-game-btn');
+
+  // Reset Confirmation Modal Elements
+  const resetConfirmBackdrop = document.getElementById('reset-confirm-backdrop');
+  const resetConfirmCancelBtn = document.getElementById('reset-confirm-cancel-btn');
+  const resetConfirmProceedBtn = document.getElementById('reset-confirm-proceed-btn');
 
   // Share Elements
   const shareBtn = document.getElementById('share-btn');
@@ -71,6 +113,122 @@ document.addEventListener('DOMContentLoaded', () => {
   const advancedToolsBtn = document.getElementById('advanced-tools-btn');
   const advancedBackdrop = document.getElementById('advanced-backdrop');
   const closeAdvancedBtn = document.getElementById('close-advanced-btn');
+
+  // --- Complete Game State LocalStorage Persistence ---
+  function saveGameState() {
+    const isHitLogOpen = document.getElementById('module-hit-log')?.classList.contains('open') || false;
+    const isPitchCounterOpen = document.getElementById('module-pitch-counter')?.classList.contains('open') || false;
+    const gameState = {
+      homeScore: homeScoreVal,
+      awayScore: awayScoreVal,
+      inning: currentInning,
+      isTop: isTopInning,
+      outs: currentOuts,
+      homeTeam: homeTeamName,
+      awayTeam: awayTeamName,
+      timer: {
+        clockStartedAt,
+        accumulatedPausedMs,
+        isTimerRunning,
+        lastPausedAt
+      },
+      pitchCounter: {
+        enabled: pitchCounterEnabled,
+        advanced: pitchCounterAdvanced,
+        simplePitches,
+        ballsCount,
+        strikesCount
+      },
+      moduleHitLogOpen: isHitLogOpen,
+      modulePitchCounterOpen: isPitchCounterOpen
+    };
+    try {
+      localStorage.setItem('baseball_game_state', JSON.stringify(gameState));
+      localStorage.setItem('baseball_home_team', homeTeamName);
+      localStorage.setItem('baseball_away_team', awayTeamName);
+    } catch (_) {}
+  }
+
+  function loadGameState() {
+    try {
+      const saved = localStorage.getItem('baseball_game_state');
+      if (!saved) return;
+      const state = JSON.parse(saved);
+
+      if (typeof state.homeScore === 'number') homeScoreVal = Math.max(0, state.homeScore);
+      if (typeof state.awayScore === 'number') awayScoreVal = Math.max(0, state.awayScore);
+      if (typeof state.inning === 'number') currentInning = Math.max(1, state.inning);
+      if (typeof state.isTop === 'boolean') isTopInning = state.isTop;
+      if (typeof state.outs === 'number') currentOuts = Math.max(0, Math.min(2, state.outs));
+      if (state.homeTeam) homeTeamName = state.homeTeam;
+      if (state.awayTeam) awayTeamName = state.awayTeam;
+
+      if (state.timer) {
+        clockStartedAt = typeof state.timer.clockStartedAt === 'number' ? state.timer.clockStartedAt : null;
+        accumulatedPausedMs = typeof state.timer.accumulatedPausedMs === 'number' ? state.timer.accumulatedPausedMs : 0;
+        isTimerRunning = !!state.timer.isTimerRunning;
+        lastPausedAt = typeof state.timer.lastPausedAt === 'number' ? state.timer.lastPausedAt : null;
+
+        if (clockStartedAt !== null) {
+          if (isTimerRunning) {
+            const elapsedMs = (Date.now() - clockStartedAt) - accumulatedPausedMs;
+            secondsElapsed = Math.max(0, Math.floor(elapsedMs / 1000));
+          } else {
+            const pauseRef = lastPausedAt || Date.now();
+            const elapsedMs = (pauseRef - clockStartedAt) - accumulatedPausedMs;
+            secondsElapsed = Math.max(0, Math.floor(elapsedMs / 1000));
+          }
+        } else {
+          secondsElapsed = 0;
+        }
+      }
+
+      // Restore pitch counter state
+      if (state.pitchCounter) {
+        pitchCounterEnabled = !!state.pitchCounter.enabled;
+        pitchCounterAdvanced = !!state.pitchCounter.advanced;
+        if (typeof state.pitchCounter.simplePitches === 'number') simplePitches = Math.max(0, state.pitchCounter.simplePitches);
+        if (typeof state.pitchCounter.ballsCount === 'number') ballsCount = Math.max(0, state.pitchCounter.ballsCount);
+        if (typeof state.pitchCounter.strikesCount === 'number') strikesCount = Math.max(0, state.pitchCounter.strikesCount);
+
+        if (enablePitchCounterChk) enablePitchCounterChk.checked = pitchCounterEnabled;
+        if (advancedPitchCounterChk) advancedPitchCounterChk.checked = pitchCounterAdvanced;
+      }
+
+      // Restore module hit log state (defaults to closed / collapsed on fresh game)
+      const hitLogMod = document.getElementById('module-hit-log');
+      const hitLogHeader = document.getElementById('module-hit-log-header');
+      if (hitLogMod && hitLogHeader) {
+        if (state.moduleHitLogOpen) {
+          hitLogMod.classList.add('open');
+          hitLogMod.classList.remove('collapsed');
+          hitLogHeader.setAttribute('aria-expanded', 'true');
+        } else {
+          hitLogMod.classList.remove('open');
+          hitLogMod.classList.add('collapsed');
+          hitLogHeader.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      // Restore module pitch counter state (defaults to closed / collapsed on fresh game)
+      const pitchMod = document.getElementById('module-pitch-counter');
+      const pitchHeader = document.getElementById('module-pitch-counter-header');
+      if (pitchMod && pitchHeader) {
+        if (state.modulePitchCounterOpen) {
+          pitchMod.classList.add('open');
+          pitchMod.classList.remove('collapsed');
+          pitchHeader.setAttribute('aria-expanded', 'true');
+        } else {
+          pitchMod.classList.remove('open');
+          pitchMod.classList.add('collapsed');
+          pitchHeader.setAttribute('aria-expanded', 'false');
+        }
+      }
+    } catch (_) {}
+  }
+
+  // Load saved state immediately on startup
+  loadGameState();
 
   // Timeouts & Tracking
   let sideChangeTimeout = null;
@@ -187,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
       triggerPop(homeScoreEl);
     }
     updateSharePreview();
+    saveGameState();
     if (homeScoreVal !== prev) {
       triggerHaptic(20);
       return true;
@@ -202,6 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
       triggerPop(awayScoreEl);
     }
     updateSharePreview();
+    saveGameState();
     if (awayScoreVal !== prev) {
       triggerHaptic(20);
       return true;
@@ -246,6 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     triggerPop(inningContainer);
     updateInningDisplay();
+    saveGameState();
     triggerHaptic(25);
   }
 
@@ -264,6 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (changed) {
       triggerPop(inningContainer);
       updateInningDisplay();
+      saveGameState();
       triggerHaptic(18);
       return true;
     }
@@ -298,6 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
       currentOuts = 0;
       updateOutsDisplay();
       advanceHalfInning();
+      saveGameState();
     }, 450);
   }
 
@@ -311,6 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentOuts += delta;
         triggerPop(outsContainer);
         updateOutsDisplay();
+        saveGameState();
         triggerHaptic(20);
         return true;
       }
@@ -321,6 +485,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentOuts !== prev) {
         triggerPop(outsContainer);
         updateOutsDisplay();
+        saveGameState();
         triggerHaptic(15);
         return true;
       }
@@ -481,6 +646,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isTopInning = false;
         triggerPop(homeLabelEl);
         updateInningDisplay();
+        saveGameState();
         triggerHaptic(20);
       }
     });
@@ -493,12 +659,190 @@ document.addEventListener('DOMContentLoaded', () => {
         isTopInning = true;
         triggerPop(awayLabelEl);
         updateInningDisplay();
+        saveGameState();
         triggerHaptic(20);
       }
     });
   }
 
-  // --- Stopwatch Game Clock ---
+  // --- Pitch Counter Controller (Simple & Advanced Mode) ---
+  function updatePitchCounterUI() {
+    if (!pitchCounterSection) return;
+
+    if (!pitchCounterEnabled) {
+      pitchCounterSection.style.display = 'none';
+      if (pitchCounterBadge) pitchCounterBadge.textContent = 'Disabled';
+      return;
+    }
+
+    pitchCounterSection.style.display = 'flex';
+
+    if (pitchCounterAdvanced) {
+      if (pitchViewSimple) pitchViewSimple.style.display = 'none';
+      if (pitchViewAdvanced) pitchViewAdvanced.style.display = 'flex';
+
+      const totalAdv = ballsCount + strikesCount;
+      if (pitchBallsVal) pitchBallsVal.textContent = ballsCount;
+      if (pitchStrikesVal) pitchStrikesVal.textContent = strikesCount;
+      if (pitchTotalStatAdv) pitchTotalStatAdv.textContent = totalAdv;
+
+      if (totalAdv === 0) {
+        if (pitchStrikePct) pitchStrikePct.textContent = '0%';
+        if (pitchBallPct) pitchBallPct.textContent = '0%';
+      } else {
+        const sPct = Math.round((strikesCount / totalAdv) * 100);
+        const bPct = Math.round((ballsCount / totalAdv) * 100);
+        if (pitchStrikePct) pitchStrikePct.textContent = `${sPct}%`;
+        if (pitchBallPct) pitchBallPct.textContent = `${bPct}%`;
+      }
+
+      if (pitchCounterBadge) pitchCounterBadge.textContent = `${totalAdv} Pitches (Adv)`;
+    } else {
+      if (pitchViewSimple) pitchViewSimple.style.display = 'flex';
+      if (pitchViewAdvanced) pitchViewAdvanced.style.display = 'none';
+
+      if (pitchSimpleVal) pitchSimpleVal.textContent = simplePitches;
+      if (pitchTotalStatSimple) pitchTotalStatSimple.textContent = simplePitches;
+
+      if (pitchCounterBadge) pitchCounterBadge.textContent = `${simplePitches} Pitches`;
+    }
+  }
+
+  function changeSimplePitch(delta) {
+    const prev = simplePitches;
+    simplePitches = Math.max(0, simplePitches + delta);
+    // Keep balls and strikes synchronized in the background
+    if (delta > 0) {
+      strikesCount += delta;
+    } else if (strikesCount > 0) {
+      strikesCount += delta;
+    } else if (ballsCount > 0) {
+      ballsCount += delta;
+    }
+    if (pitchSimpleVal) triggerPop(pitchSimpleVal);
+    updatePitchCounterUI();
+    saveGameState();
+    if (simplePitches !== prev) {
+      triggerHaptic(20);
+      return true;
+    }
+    return false;
+  }
+
+  function changeBallsCount(delta) {
+    const prev = ballsCount;
+    ballsCount = Math.max(0, ballsCount + delta);
+    simplePitches = ballsCount + strikesCount;
+    if (pitchBallsVal) triggerPop(pitchBallsVal);
+    updatePitchCounterUI();
+    saveGameState();
+    if (ballsCount !== prev) {
+      triggerHaptic(20);
+      return true;
+    }
+    return false;
+  }
+
+  function changeStrikesCount(delta) {
+    const prev = strikesCount;
+    strikesCount = Math.max(0, strikesCount + delta);
+    simplePitches = ballsCount + strikesCount;
+    if (pitchStrikesVal) triggerPop(pitchStrikesVal);
+    updatePitchCounterUI();
+    saveGameState();
+    if (strikesCount !== prev) {
+      triggerHaptic(20);
+      return true;
+    }
+    return false;
+  }
+
+  // 1. Simple Pitch Button: Tap = +1, Hold = slow -1 decrement
+  setupTapAndHold(pitchSimpleBtn, {
+    onIncrease: () => changeSimplePitch(+1),
+    onDecrease: () => changeSimplePitch(-1),
+    onSwipeUp: () => changeSimplePitch(+1),
+    onSwipeDown: () => changeSimplePitch(-1),
+    itemName: 'Pitch',
+    toastTag: 'PITCH'
+  });
+
+  // 2. Advanced Pitch Button - Balls Side: Tap = +1, Hold = slow -1 decrement
+  setupTapAndHold(pitchBallSide, {
+    onIncrease: () => changeBallsCount(+1),
+    onDecrease: () => changeBallsCount(-1),
+    onSwipeUp: () => changeBallsCount(+1),
+    onSwipeDown: () => changeBallsCount(-1),
+    itemName: 'Ball',
+    toastTag: 'BALL'
+  });
+
+  // 3. Advanced Pitch Button - Strikes Side: Tap = +1, Hold = slow -1 decrement
+  setupTapAndHold(pitchStrikeSide, {
+    onIncrease: () => changeStrikesCount(+1),
+    onDecrease: () => changeStrikesCount(-1),
+    onSwipeUp: () => changeStrikesCount(+1),
+    onSwipeDown: () => changeStrikesCount(-1),
+    itemName: 'Strike',
+    toastTag: 'STRIKE'
+  });
+
+  // Prevent mobile pull-to-refresh on pitch counter elements
+  preventMobilePullToRefresh(pitchCounterSection);
+  preventMobilePullToRefresh(pitchSimpleBtn);
+  preventMobilePullToRefresh(pitchBallSide);
+  preventMobilePullToRefresh(pitchStrikeSide);
+
+  // Pitch Counter Drawer Checkboxes
+  if (enablePitchCounterChk) {
+    enablePitchCounterChk.addEventListener('change', () => {
+      pitchCounterEnabled = enablePitchCounterChk.checked;
+      updatePitchCounterUI();
+      saveGameState();
+      showInningToast('PITCH COUNTER', pitchCounterEnabled ? 'ENABLED' : 'DISABLED');
+      triggerHaptic(20);
+    });
+  }
+
+  if (advancedPitchCounterChk) {
+    advancedPitchCounterChk.addEventListener('change', () => {
+      pitchCounterAdvanced = advancedPitchCounterChk.checked;
+      if (pitchCounterAdvanced && !pitchCounterEnabled) {
+        pitchCounterEnabled = true;
+        if (enablePitchCounterChk) enablePitchCounterChk.checked = true;
+      }
+      updatePitchCounterUI();
+      saveGameState();
+      showInningToast('PITCH COUNTER', pitchCounterAdvanced ? 'ADVANCED MODE' : 'SIMPLE MODE');
+      triggerHaptic(20);
+    });
+  }
+
+  if (resetPitchesBtn) {
+    resetPitchesBtn.addEventListener('click', () => {
+      simplePitches = 0;
+      ballsCount = 0;
+      strikesCount = 0;
+      updatePitchCounterUI();
+      saveGameState();
+      showInningToast('PITCHES', 'RESET TO 0');
+      triggerHaptic([30, 30]);
+    });
+  }
+
+  // --- Stopwatch Game Clock with Start Time & Accumulated Pause Math ---
+  function calculateCurrentElapsedSeconds() {
+    if (clockStartedAt === null) return 0;
+    if (isTimerRunning) {
+      const elapsedMs = (Date.now() - clockStartedAt) - accumulatedPausedMs;
+      return Math.max(0, Math.floor(elapsedMs / 1000));
+    } else {
+      const pauseRef = lastPausedAt || Date.now();
+      const elapsedMs = (pauseRef - clockStartedAt) - accumulatedPausedMs;
+      return Math.max(0, Math.floor(elapsedMs / 1000));
+    }
+  }
+
   function formatTime(totalSeconds) {
     const hrs = Math.floor(totalSeconds / 3600);
     const mins = Math.floor((totalSeconds % 3600) / 60);
@@ -510,11 +854,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function startTimer() {
     clearInterval(timerInterval);
     timerInterval = setInterval(() => {
-      if (isTimerRunning) {
-        secondsElapsed++;
+      if (isTimerRunning && clockStartedAt !== null) {
+        secondsElapsed = calculateCurrentElapsedSeconds();
         if (timerEl) timerEl.textContent = formatTime(secondsElapsed);
       }
-    }, 1000);
+    }, 500);
   }
 
   function updateTimerUI() {
@@ -535,15 +879,41 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function toggleTimer() {
-    isTimerRunning = !isTimerRunning;
+    const now = Date.now();
+    if (!isTimerRunning) {
+      // Starting or resuming clock
+      if (clockStartedAt === null) {
+        clockStartedAt = now;
+        accumulatedPausedMs = 0;
+        lastPausedAt = null;
+      } else if (lastPausedAt !== null) {
+        accumulatedPausedMs += (now - lastPausedAt);
+        lastPausedAt = null;
+      }
+      isTimerRunning = true;
+      secondsElapsed = calculateCurrentElapsedSeconds();
+      if (timerEl) timerEl.textContent = formatTime(secondsElapsed);
+      showInningToast('CLOCK', 'STARTED');
+    } else {
+      // Pausing clock
+      isTimerRunning = false;
+      lastPausedAt = now;
+      secondsElapsed = calculateCurrentElapsedSeconds();
+      if (timerEl) timerEl.textContent = formatTime(secondsElapsed);
+      showInningToast('CLOCK', 'PAUSED');
+    }
+
     updateTimerUI();
-    showInningToast('CLOCK', isTimerRunning ? 'STARTED' : 'PAUSED');
+    saveGameState();
     triggerHaptic(20);
   }
 
   function resetTimer() {
+    clockStartedAt = null;
+    accumulatedPausedMs = 0;
+    lastPausedAt = null;
+    isTimerRunning = false;
     secondsElapsed = 0;
-    isTimerRunning = false; // Paused by default when resetting clock
     if (timerEl) {
       timerEl.textContent = formatTime(0);
       triggerPop(timerDisplay);
@@ -551,6 +921,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTimerUI();
     showInningToast('CLOCK', 'RESET (00:00:00)');
     updateSharePreview();
+    saveGameState();
     triggerHaptic([30, 40]);
   }
 
@@ -706,6 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('baseball_home_team', homeTeamName);
       fitTeamNames();
       updateSharePreview();
+      saveGameState();
     });
   }
 
@@ -716,6 +1088,7 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('baseball_away_team', awayTeamName);
       fitTeamNames();
       updateSharePreview();
+      saveGameState();
     });
   }
 
@@ -740,22 +1113,79 @@ document.addEventListener('DOMContentLoaded', () => {
       if (homeScoreEl) homeScoreEl.textContent = '0';
       if (awayScoreEl) awayScoreEl.textContent = '0';
       updateSharePreview();
+      saveGameState();
       showInningToast('SCORES', 'RESET TO 0 - 0');
       triggerHaptic([30, 30]);
       closeSettings();
     });
   }
 
-  // New Game
+  // Reset Confirmation Modal Handlers
+  function openResetConfirmModal() {
+    if (!resetConfirmBackdrop) return;
+    resetConfirmBackdrop.classList.add('open');
+    resetConfirmBackdrop.setAttribute('aria-hidden', 'false');
+    triggerHaptic(20);
+  }
+
+  function closeResetConfirmModal() {
+    if (!resetConfirmBackdrop) return;
+    resetConfirmBackdrop.classList.remove('open');
+    resetConfirmBackdrop.setAttribute('aria-hidden', 'true');
+  }
+
+  // Start New Game (Opens Confirmation Modal)
   if (resetGameBtn) {
     resetGameBtn.addEventListener('click', () => {
+      openResetConfirmModal();
+    });
+  }
+
+  if (resetConfirmCancelBtn) {
+    resetConfirmCancelBtn.addEventListener('click', closeResetConfirmModal);
+  }
+
+  if (resetConfirmBackdrop) {
+    resetConfirmBackdrop.addEventListener('click', (e) => {
+      if (e.target === resetConfirmBackdrop) closeResetConfirmModal();
+    });
+  }
+
+  if (resetConfirmProceedBtn) {
+    resetConfirmProceedBtn.addEventListener('click', () => {
+      // Clear game data from LocalStorage
+      localStorage.removeItem('baseball_game_state');
+      localStorage.removeItem('baseball_hit_log');
+
       homeScoreVal = 0;
       awayScoreVal = 0;
       currentInning = 1;
       isTopInning = true;
       currentOuts = 0;
-      secondsElapsed = 0;
+
+      // Clock reset
+      clockStartedAt = null;
+      accumulatedPausedMs = 0;
+      lastPausedAt = null;
       isTimerRunning = false;
+      secondsElapsed = 0;
+
+      hitLogData = [];
+
+      // Pitch counter reset
+      simplePitches = 0;
+      ballsCount = 0;
+      strikesCount = 0;
+      updatePitchCounterUI();
+
+      // Reset modules to collapsed on fresh game
+      const allModules = document.querySelectorAll('.canvas-module');
+      allModules.forEach((mod) => {
+        mod.classList.remove('open');
+        mod.classList.add('collapsed');
+        const header = mod.querySelector('.module-header');
+        if (header) header.setAttribute('aria-expanded', 'false');
+      });
 
       if (homeScoreEl) homeScoreEl.textContent = '0';
       if (awayScoreEl) awayScoreEl.textContent = '0';
@@ -765,8 +1195,12 @@ document.addEventListener('DOMContentLoaded', () => {
       updateInningDisplay();
       updateOutsDisplay();
       updateTimerUI();
+      renderHitList();
+      saveGameState();
+
       showInningToast('GAME', 'NEW GAME STARTED');
       triggerHaptic([40, 50, 40]);
+      closeResetConfirmModal();
       closeSettings();
     });
   }
@@ -941,10 +1375,12 @@ document.addEventListener('DOMContentLoaded', () => {
           mod.classList.remove('collapsed');
           header.setAttribute('aria-expanded', 'true');
           if (mod.id === 'module-hit-log') {
-            setTimeout(updateStadiumScale, 40);
-            setTimeout(updateStadiumScale, 320);
+            requestAnimationFrame(() => updateStadiumScale());
+            setTimeout(updateStadiumScale, 60);
+            setTimeout(updateStadiumScale, 280);
           }
         }
+        saveGameState();
         triggerHaptic(15);
       });
     }
@@ -964,7 +1400,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const clearHitsBtn = document.getElementById('clear-hits-btn');
   const hitLogBadge = document.getElementById('hit-log-badge');
 
-  let currentHitLocation = { x: 490, y: 237, name: 'Second Base (2B)' };
+  let currentHitLocation = { x: 490, y: 237, name: 'Second Base' };
   let hitLogData = [];
   try {
     hitLogData = JSON.parse(localStorage.getItem('baseball_hit_log') || '[]');
@@ -987,92 +1423,79 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('resize', updateStadiumScale);
 
   // Exact Baseball Diamond Field Geometry Calculator
-  // Accurate outfield fence curve and infield dirt boundary
+  // Uncomplicated clean locations: Home Plate, Pitcher's Mound, 1B, 2B, 3B, SS, LF, CF, RF, Foul Territory
+  // Rejects out-of-park or out-of-field clicks
   function calculateHitZone(x, y) {
     const homeX = 490;
     const homeY = 680;
     const dx = x - homeX;
     const dy = homeY - y; // positive towards outfield
     const dist = Math.hypot(dx, dy);
-    const angleDeg = Math.atan2(dx, dy) * (180 / Math.PI); // 0 = straight up to CF
+    const angleDeg = Math.atan2(dx, dy) * (180 / Math.PI); // 0 = straight towards CF
 
-    // 1. Foul territory: Outside left foul line (-45°) or right foul line (+45°), or behind home plate (dy < -15)
-    if (dy < -15 || angleDeg < -45.0 || angleDeg > 45.0) {
-      if (dy < -15) return 'Foul (Behind Plate)';
-      if (dx < 0) {
-        if (dist > 620) return 'Foul (Left - Out of Park)';
-        if (dist > 400) return 'Foul (Left Outfield)';
-        return 'Foul (Third Baseline)';
-      } else {
-        if (dist > 620) return 'Foul (Right - Out of Park)';
-        if (dist > 400) return 'Foul (Right Outfield)';
-        return 'Foul (First Baseline)';
-      }
+    // 1. Outside the field: past outfield fence top curve (dist > 620) or behind home plate bounds (dy < -25)
+    // Clicks outside do NOT register; prompt the user to tap inside the field.
+    if (dist > 620 || dy < -25) {
+      return null;
     }
 
-    // 2. Out of the park: follow top curve of outfield fence (dist > 620 in fair territory)
-    if (dist > 620) {
-      if (angleDeg < -15) return 'Out of the Park (Left Field)';
-      if (angleDeg > 15) return 'Out of the Park (Right Field)';
-      return 'Out of the Park (Center Field)';
+    // 2. Foul Territory: outside the foul lines (-45° to +45° is fair territory)
+    if (angleDeg < -45.0 || angleDeg > 45.0 || dy < -10) {
+      return 'Foul Territory';
     }
 
-    // 3. Infield dirt boundary:
-    // Second base dirt apex is at ~490px in center, tapering to ~360px along 1B/3B foul lines
+    // 3. Fair Territory:
+    // Infield dirt boundary: apex at ~475px distance from home, tapering to ~350px near foul lines
     const normAngle = Math.min(1, Math.abs(angleDeg) / 45);
-    const dirtRadius = 490 - (130 * Math.pow(normAngle, 1.3));
+    const dirtRadius = 475 - (110 * Math.pow(normAngle, 1.3));
 
-    // If inside infield dirt: strictly infield!
+    // A. INFIELD (dist <= dirtRadius)
     if (dist <= dirtRadius) {
-      if (dist < 85) return 'Home Plate';
-      if (Math.hypot(x - 490, y - 460) <= 55 || (dist < 250 && Math.abs(angleDeg) <= 16)) {
+      if (dist < 80) return 'Home Plate';
+
+      // Pitcher's Mound (centered at 490, 460)
+      if (Math.hypot(x - 490, y - 460) <= 55 || (dist < 250 && Math.abs(angleDeg) <= 15)) {
         return "Pitcher's Mound";
       }
-      // Specific bases
-      if (Math.hypot(x - 712, y - 456) <= 55) return 'First Base (1B)';
-      if (Math.hypot(x - 268, y - 456) <= 55) return 'Third Base (3B)';
-      if (Math.hypot(x - 490, y - 237) <= 55) return 'Second Base (2B)';
-      if (Math.hypot(x - 375, y - 350) <= 55) return 'Shortstop (SS)';
 
-      // Infield zones
-      if (dist < 360) {
-        if (angleDeg < -24) return 'Third Base (3B)';
-        if (angleDeg > 24) return 'First Base (1B)';
-        if (angleDeg <= 0) return 'Shortstop (SS)';
-        return 'Second Base (2B)';
-      } else {
-        if (angleDeg < -20) return 'Deep 3B (Hole)';
-        if (angleDeg > 20) return 'Deep 1B (Hole)';
-        if (angleDeg <= 0) return 'Deep Shortstop';
-        return 'Deep Second Base';
+      // Proximity to bases
+      if (Math.hypot(x - 712, y - 456) <= 60 || (angleDeg > 20 && dist <= 360)) {
+        return 'First Base';
       }
+      if (Math.hypot(x - 268, y - 456) <= 60 || (angleDeg < -20 && dist <= 360)) {
+        return 'Third Base';
+      }
+      if (Math.hypot(x - 490, y - 237) <= 60 || (angleDeg >= 0 && dist > 340)) {
+        return 'Second Base';
+      }
+      if (Math.hypot(x - 375, y - 350) <= 60 || (angleDeg < 0 && dist > 320)) {
+        return 'Shortstop';
+      }
+
+      // Position by angle
+      if (angleDeg < -20) return 'Third Base';
+      if (angleDeg > 20) return 'First Base';
+      if (angleDeg < 0) return 'Shortstop';
+      return 'Second Base';
     }
 
-    // 4. Outfield (only strictly past the infield dirt: dist > dirtRadius && dist <= 620)
-    // Shallow Outfield
-    if (dist <= dirtRadius + 45) {
-      if (angleDeg < -15) return 'Shallow Left Field';
-      if (angleDeg > 15) return 'Shallow Right Field';
-      return 'Shallow Center Field';
-    }
-
-    // Mid Outfield
-    if (dist <= 575) {
-      if (angleDeg < -15) return 'Left Field';
-      if (angleDeg > 15) return 'Right Field';
+    // B. OUTFIELD (dist > dirtRadius && dist <= 620)
+    // Clean classic outfield positions without sub-zones
+    if (angleDeg < -15) {
+      return 'Left Field';
+    } else if (angleDeg > 15) {
+      return 'Right Field';
+    } else {
       return 'Center Field';
     }
-
-    // Deep Outfield / Warning Track
-    if (angleDeg < -15) return 'Deep Left Field';
-    if (angleDeg > 15) return 'Deep Right Field';
-    return 'Deep Center Field';
   }
 
   function placeHitPin(x, y, forcedName = null) {
     const clampedX = Math.max(60, Math.min(930, Math.round(x)));
     const clampedY = Math.max(20, Math.min(730, Math.round(y)));
     const zoneName = forcedName || calculateHitZone(clampedX, clampedY);
+
+    if (!zoneName) return false;
 
     currentHitLocation = {
       x: clampedX,
@@ -1090,10 +1513,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     triggerHaptic(20);
+    return true;
   }
 
   // Initial Pin default to 2B
-  placeHitPin(490, 237, 'Second Base (2B)');
+  placeHitPin(490, 237, 'Second Base');
 
   if (stadiumViewport) {
     stadiumViewport.addEventListener('pointerdown', (e) => {
@@ -1107,7 +1531,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const x = 490 + (relX / scale);
       const y = 380 + (relY / scale);
 
-      placeHitPin(x, y);
+      const zone = calculateHitZone(x, y);
+      if (!zone) {
+        showInningToast('FIELD', 'Please tap inside the field');
+        triggerHaptic([30, 30]);
+        return;
+      }
+
+      placeHitPin(x, y, zone);
     });
   }
 
@@ -1135,7 +1566,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .replace(/"/g, '&quot;');
   }
 
-  // Build clean display sentence for hit log
+  // Build clean natural display sentence for hit log
   function formatHitSentence(player, outcome, location) {
     const name = player && player.trim() ? player.trim() : 'Batter';
     const loc = location ? location.replace(/\s*\([^)]*\)/g, '').trim() : '';
@@ -1146,14 +1577,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (outcome === 'Walk') {
       return `${name} walked.`;
     }
-    if (outcome === 'Error - 1st' || outcome === 'Reached 1st on Error') {
-      return `${name} reached first on an error.`;
+    if (outcome === 'Reached on Error' || outcome === 'Error - 1st' || outcome === 'Error - 2nd' || outcome === 'Error - 3rd') {
+      return `${name} reached on an error at ${loc || 'the field'}.`;
     }
-    if (outcome === 'Error - 2nd' || outcome === 'Reached 2nd on Error') {
-      return `${name} reached second on an error.`;
+    if (outcome === 'Pop-out') {
+      return `${name} popped out to ${loc || 'the field'}.`;
     }
-    if (outcome === 'Error - 3rd' || outcome === 'Reached 3rd on Error') {
-      return `${name} reached third on an error.`;
+    if (outcome === 'Line-out') {
+      return `${name} lined out to ${loc || 'the field'}.`;
     }
     if (outcome === 'Flyout') {
       return `${name} flied out to ${loc || 'the outfield'}.`;
@@ -1174,7 +1605,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return `${name} hit a triple to ${loc || 'the outfield'}.`;
     }
     if (outcome === 'Foul Ball') {
-      return `${name} hit a foul ball to ${loc || 'foul territory'}.`;
+      return `${name} hit a foul ball to ${loc || 'Foul Territory'}.`;
     }
     return `${name} hit a ${outcome.toLowerCase()} to ${loc || 'the field'}.`;
   }
@@ -1336,6 +1767,7 @@ document.addEventListener('DOMContentLoaded', () => {
     hitLogData = hitLogData.filter((h) => h.id !== id);
     localStorage.setItem('baseball_hit_log', JSON.stringify(hitLogData));
     renderHitList();
+    saveGameState();
     showInningToast('HIT LOG', 'Entry Removed');
     triggerHaptic(20);
   }
@@ -1346,6 +1778,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hitLogData = [];
       localStorage.setItem('baseball_hit_log', JSON.stringify(hitLogData));
       renderHitList();
+      saveGameState();
       showInningToast('HIT LOG', 'All Entries Cleared');
       triggerHaptic([30, 30]);
     });
@@ -1357,7 +1790,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const playerText = rawPlayer || 'Batter';
       const outcomeText = hitOutcomeSelect ? hitOutcomeSelect.value : 'Single';
       const isWalkOrK = outcomeText === 'Walk' || outcomeText === 'Strikeout';
-      const locationText = isWalkOrK ? '' : (currentHitLocation.name || 'Second Base (2B)');
+      const locationText = isWalkOrK ? '' : (currentHitLocation.name || 'Second Base');
       const inningTag = `${isTopInning ? 'T' : 'B'}${currentInning}`;
       const sentenceText = formatHitSentence(playerText, outcomeText, locationText);
 
@@ -1374,6 +1807,7 @@ document.addEventListener('DOMContentLoaded', () => {
       hitLogData.unshift(newHit);
       localStorage.setItem('baseball_hit_log', JSON.stringify(hitLogData));
       renderHitList();
+      saveGameState();
 
       showInningToast('HIT LOG', sentenceText);
       triggerHaptic([30, 40]);
@@ -1387,9 +1821,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Render initial hits on load
   renderHitList();
 
-  // Escape Key to close any active drawer
+  // Escape Key to close any active drawer or modal
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
+      if (resetConfirmBackdrop && resetConfirmBackdrop.classList.contains('open')) closeResetConfirmModal();
       if (shareBackdrop && shareBackdrop.classList.contains('open')) closeShareMenu();
       if (settingsBackdrop && settingsBackdrop.classList.contains('open')) closeSettings();
       if (advancedBackdrop && advancedBackdrop.classList.contains('open')) closeAdvancedTools();
@@ -1499,8 +1934,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // Initial renders
+  if (homeScoreEl) homeScoreEl.textContent = homeScoreVal;
+  if (awayScoreEl) awayScoreEl.textContent = awayScoreVal;
+  if (homeNameInput) homeNameInput.value = homeTeamName;
+  if (awayNameInput) awayNameInput.value = awayTeamName;
+  if (homeLabelEl) homeLabelEl.textContent = homeTeamName;
+  if (awayLabelEl) awayLabelEl.textContent = awayTeamName;
+  if (timerEl) timerEl.textContent = formatTime(secondsElapsed);
   updateInningDisplay();
   updateOutsDisplay();
   updateTimerUI();
+  updatePitchCounterUI();
   updateSharePreview();
+  fitTeamNames();
 });
