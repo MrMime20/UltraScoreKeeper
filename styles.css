@@ -207,12 +207,14 @@ body[data-theme="clay"] {
 }
 
 /* Fix mobile browser pull-to-refresh / page reload on swipe down */
-html, body {
+html {
   overflow-x: hidden;
   max-width: 100vw;
   width: 100%;
+  height: 100%;
   overscroll-behavior-y: none !important;
   overscroll-behavior: none !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 body {
@@ -227,6 +229,8 @@ body {
   transition: background-color 0.35s ease, color 0.35s ease;
   user-select: none;
   -webkit-user-select: none;
+  overscroll-behavior-y: none !important;
+  overscroll-behavior: none !important;
 }
 
 .scoreboard-container {
@@ -799,11 +803,22 @@ button {
   user-select: none;
   -webkit-user-select: none;
   transition: background-color 0.15s ease, transform 0.15s ease;
+  will-change: transform;
 }
 
 .pitch-split-side:active {
   background-color: rgba(0, 0, 0, 0.08);
   transform: scale(0.96);
+}
+
+.pitch-split-side.pop-feedback {
+  animation: pitchSidePop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes pitchSidePop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 [data-theme="dark"] .pitch-split-side:active,
@@ -1011,6 +1026,10 @@ button {
   box-shadow: 0 -16px 48px var(--shadow-color);
   max-height: 86vh;
   overflow-y: auto;
+  overscroll-behavior: contain !important;
+  overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
   transform: translateY(105%);
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease;
   display: flex;
@@ -1189,6 +1208,10 @@ button {
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
+  overscroll-behavior: contain !important;
+  overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .settings-group {
@@ -1722,6 +1745,10 @@ button {
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
+  overscroll-behavior: contain !important;
+  overscroll-behavior-y: contain !important;
+  touch-action: pan-y !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Canvas Instructure Modules Container */
@@ -2575,4 +2602,179 @@ body.in-theme-transition * {
   overflow: hidden;
   clip-path: circle(0px at 50% 50%);
   will-change: clip-path;
+}
+
+/* ========================================================================= */
+/* THE BUNS BUTTON: Incredibly Realistic Red Nuke Activation Button Module   */
+/* ========================================================================= */
+
+.buns-module-body {
+  padding: 24px 16px 30px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  background: radial-gradient(circle at center, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
+}
+
+.buns-warning-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 900;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.12);
+  border: 1.5px dashed rgba(239, 68, 68, 0.45);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+/* Realistic Heavy Industrial Nuke Button Housing */
+.nuke-housing {
+  position: relative;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #475569, #1e293b 65%, #0f172a 100%);
+  border: 6px solid #334155;
+  box-shadow: 
+    0 18px 32px rgba(0, 0, 0, 0.65),
+    inset 0 4px 6px rgba(255, 255, 255, 0.25),
+    inset 0 -6px 10px rgba(0, 0, 0, 0.8),
+    0 0 0 3px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+/* Metal Bezel Ring */
+.nuke-bezel-ring {
+  width: 136px;
+  height: 136px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #64748b, #334155 70%, #1e293b 100%);
+  border: 4px solid #1e293b;
+  box-shadow: 
+    inset 0 3px 5px rgba(255, 255, 255, 0.35),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* Industrial Danger Stripes around Rim */
+.nuke-housing::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 4px dashed rgba(239, 68, 68, 0.35);
+  pointer-events: none;
+}
+
+/* Realistic 3D Red Button Cap */
+.nuke-red-button {
+  width: 104px;
+  height: 104px;
+  border-radius: 50%;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  position: relative;
+  /* Deep glossy cherry-red concave dome */
+  background: radial-gradient(circle at 38% 30%, #ff4d4d 0%, #dc2626 42%, #991b1b 75%, #450a0a 100%);
+  box-shadow: 
+    0 12px 18px rgba(0, 0, 0, 0.6),
+    0 4px 10px rgba(220, 38, 38, 0.5),
+    inset 0 5px 8px rgba(255, 255, 255, 0.65),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: #ffffff;
+  transform: translateY(-4px);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.08s ease;
+  will-change: transform, box-shadow;
+}
+
+.nuke-red-button:hover {
+  filter: brightness(1.08);
+  box-shadow: 
+    0 14px 22px rgba(0, 0, 0, 0.65),
+    0 6px 14px rgba(239, 68, 68, 0.7),
+    inset 0 5px 8px rgba(255, 255, 255, 0.7),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.85);
+}
+
+.nuke-red-button:active,
+.nuke-red-button.pressed {
+  transform: translateY(4px);
+  box-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.6),
+    0 1px 4px rgba(220, 38, 38, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.9);
+  filter: brightness(0.92);
+}
+
+/* Button Engraved Text */
+.nuke-btn-icon {
+  font-size: 26px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.nuke-btn-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+}
+
+.buns-status-msg {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  text-align: center;
+  min-height: 18px;
+}
+
+/* Falling Bun Drop Graphic */
+.bun-drop {
+  position: fixed;
+  top: -100px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 9999999;
+  animation: bunFalling linear forwards;
+  will-change: transform;
+}
+
+@keyframes bunFalling {
+  0% {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(115vh) rotate(540deg);
+    opacity: 0;
+  }
 }

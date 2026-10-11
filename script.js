@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function saveGameState() {
     const isHitLogOpen = document.getElementById('module-hit-log')?.classList.contains('open') || false;
     const isPitchCounterOpen = document.getElementById('module-pitch-counter')?.classList.contains('open') || false;
+    const isBunsButtonOpen = document.getElementById('module-buns-button')?.classList.contains('open') || false;
     const gameState = {
       homeScore: homeScoreVal,
       awayScore: awayScoreVal,
@@ -143,7 +144,8 @@ document.addEventListener('DOMContentLoaded', () => {
         strikesCount
       },
       moduleHitLogOpen: isHitLogOpen,
-      modulePitchCounterOpen: isPitchCounterOpen
+      modulePitchCounterOpen: isPitchCounterOpen,
+      moduleBunsButtonOpen: isBunsButtonOpen
     };
     try {
       localStorage.setItem('baseball_game_state', JSON.stringify(gameState));
@@ -225,6 +227,21 @@ document.addEventListener('DOMContentLoaded', () => {
           pitchMod.classList.remove('open');
           pitchMod.classList.add('collapsed');
           pitchHeader.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      // Restore module buns button state
+      const bunsMod = document.getElementById('module-buns-button');
+      const bunsHeader = document.getElementById('module-buns-button-header');
+      if (bunsMod && bunsHeader) {
+        if (state.moduleBunsButtonOpen) {
+          bunsMod.classList.add('open');
+          bunsMod.classList.remove('collapsed');
+          bunsHeader.setAttribute('aria-expanded', 'true');
+        } else {
+          bunsMod.classList.remove('open');
+          bunsMod.classList.add('collapsed');
+          bunsHeader.setAttribute('aria-expanded', 'false');
         }
       }
     } catch (_) {}
@@ -737,6 +754,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ballsCount = Math.max(0, ballsCount + delta);
     simplePitches = ballsCount + strikesCount;
     if (pitchBallsVal) triggerPop(pitchBallsVal);
+    if (pitchBallSide) triggerPop(pitchBallSide);
     updatePitchCounterUI();
     saveGameState();
     if (ballsCount !== prev) {
@@ -751,6 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
     strikesCount = Math.max(0, strikesCount + delta);
     simplePitches = ballsCount + strikesCount;
     if (pitchStrikesVal) triggerPop(pitchStrikesVal);
+    if (pitchStrikeSide) triggerPop(pitchStrikeSide);
     updatePitchCounterUI();
     saveGameState();
     if (strikesCount !== prev) {
@@ -1381,223 +1400,305 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // --- High-Resolution Box Score Graphic Card Generator (HTML5 Canvas) ---
+  // --- High-Resolution Official Baseball Box Score Card (Matches Classic Line Score Sheet) ---
   function renderBoxScoreToCanvas(targetCanvas) {
     if (!targetCanvas) return;
     const canvas = targetCanvas;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Retina 2x resolution: 800 x 500 px
-    const width = 800;
-    const height = 520;
+    // High definition line score sheet: 960 x 540 px
+    const width = 960;
+    const height = 540;
     canvas.width = width;
     canvas.height = height;
 
-    // Read active theme palette colors or fallback to rich ballpark aesthetic
-    const computed = window.getComputedStyle(document.body);
-    const bgBody = computed.getPropertyValue('--bg-body').trim() || '#0f172a';
-    const bgCard = computed.getPropertyValue('--bg-card').trim() || '#1e293b';
-    const accent = computed.getPropertyValue('--accent-color').trim() || '#38bdf8';
-    const textPrimary = computed.getPropertyValue('--text-primary').trim() || '#f8fafc';
-    const textSecondary = computed.getPropertyValue('--text-secondary').trim() || '#94a3b8';
-    const borderColor = computed.getPropertyValue('--border-color').trim() || '#334155';
+    // Clean, crisp classic baseball line score aesthetic (bright white card with sharp dark borders)
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, width, height);
 
-    // 1. Background Gradient
-    const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
-    bgGrad.addColorStop(0, bgCard);
-    bgGrad.addColorStop(1, bgBody);
-    ctx.fillStyle = bgGrad;
-    ctx.beginPath();
-    ctx.roundRect(0, 0, width, height, 28);
-    ctx.fill();
+    // Outer subtle border
+    ctx.strokeStyle = '#1e293b';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(4, 4, width - 8, height - 8);
 
-    // 2. Subtle Outer Border & Accent Glow Header
-    ctx.strokeStyle = borderColor;
-    ctx.lineWidth = 4;
-    ctx.stroke();
-
-    // Top Header Banner
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.04)';
-    ctx.beginPath();
-    ctx.roundRect(16, 16, width - 32, 64, 18);
-    ctx.fill();
-
-    // Title / Header Text
-    ctx.fillStyle = accent;
-    ctx.font = '900 19px system-ui, -apple-system, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('⚾ OFFICIAL BASEBALL BOX SCORE', 38, 48);
-
-    // Current Game Status Badge (Inning & Outs)
+    // Top Header: Date, Matchup, Inning Status
     const half = isTopInning ? 'TOP' : 'BOT';
-    const statusText = `${half} ${currentInning}  •  ${currentOuts} ${currentOuts === 1 ? 'OUT' : 'OUTS'}`;
-    ctx.textAlign = 'right';
-    ctx.font = '800 17px system-ui, -apple-system, sans-serif';
-    ctx.fillStyle = textPrimary;
-    ctx.fillText(statusText, width - 38, 48);
+    const statusText = `${half} ${currentInning} • ${currentOuts} ${currentOuts === 1 ? 'OUT' : 'OUTS'}`;
 
-    // 3. Main Matchup Score Board Area
-    // Team Cards
-    const cardY = 100;
-    const cardHeight = 220;
-    const cardWidth = (width - 32 - 20) / 2; // Home and Away cards
+    // --- LINE SCORE TABLE ---
+    // Inning numbers 1 to 10 + 4 extra empty columns + R, H, E (Total 17 columns)
+    const tableX = 30;
+    const tableY = 32;
+    const tableWidth = width - 60; // 900px
+    const headerRowHeight = 44;
+    const teamRowHeight = 54;
+    const tableHeight = headerRowHeight + (teamRowHeight * 2); // 152px
 
-    // Helper for rounded team card
-    function drawTeamBox(x, y, w, h, name, score, isBatting, isHome) {
-      ctx.save();
-      // Background
-      ctx.fillStyle = isBatting ? 'rgba(255, 255, 255, 0.07)' : 'rgba(0, 0, 0, 0.25)';
-      ctx.beginPath();
-      ctx.roundRect(x, y, w, h, 20);
-      ctx.fill();
+    const labelColWidth = 120; // Column for "VISITOR" and "HOME"
+    const remainingWidth = tableWidth - labelColWidth; // 780px
+    const numInningCols = 10;
+    const extraCols = 4;
+    const rheCols = 3; // R, H, E
+    const totalDataCols = numInningCols + extraCols + rheCols; // 17 columns
+    const colW = remainingWidth / totalDataCols; // ~45.88px per column
 
-      // Active Batting Border Accent
-      ctx.strokeStyle = isBatting ? accent : 'rgba(255, 255, 255, 0.08)';
-      ctx.lineWidth = isBatting ? 3.5 : 2;
-      ctx.stroke();
+    // Draw Table Outer Border
+    ctx.strokeStyle = '#18181b';
+    ctx.lineWidth = 3.5;
+    ctx.strokeRect(tableX, tableY, tableWidth, tableHeight);
 
-      // Offense Indicator Badge if batting
-      if (isBatting) {
-        ctx.fillStyle = accent;
-        ctx.beginPath();
-        ctx.roundRect(x + w - 95, y + 16, 80, 24, 12);
-        ctx.fill();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.font = '900 11px system-ui, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('AT BAT', x + w - 55, y + 28);
-      }
-
-      // Team Label Tag (HOME / AWAY)
-      ctx.fillStyle = textSecondary;
-      ctx.font = '800 13px system-ui, sans-serif';
-      ctx.textAlign = 'left';
-      ctx.textBaseline = 'top';
-      ctx.fillText(isHome ? 'HOME TEAM' : 'AWAY TEAM', x + 24, y + 22);
-
-      // Team Name
-      ctx.fillStyle = textPrimary;
-      ctx.font = '900 32px system-ui, sans-serif';
-      let displayName = name;
-      if (ctx.measureText(displayName).width > w - 120) {
-        displayName = displayName.substring(0, 11) + '…';
-      }
-      ctx.fillText(displayName, x + 24, y + 46);
-
-      // Score Value
-      ctx.fillStyle = textPrimary;
-      ctx.font = '900 84px system-ui, sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(score.toString(), x + (w / 2), y + 145);
-
-      ctx.restore();
-    }
-
-    // Draw Away (Left) and Home (Right)
-    const awayBatting = isTopInning;
-    const homeBatting = !isTopInning;
-    drawTeamBox(16, cardY, cardWidth, cardHeight, awayTeamName, awayScoreVal, awayBatting, false);
-    drawTeamBox(16 + cardWidth + 20, cardY, cardWidth, cardHeight, homeTeamName, homeScoreVal, homeBatting, true);
-
-    // VS Dash Divider between cards
-    ctx.fillStyle = textSecondary;
-    ctx.font = '900 24px system-ui, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('VS', width / 2, cardY + (cardHeight / 2));
-
-    // 4. Bottom Stats Strip (Pitch Count & Game Time & Hits)
-    const bottomY = 340;
-    const bottomHeight = 140;
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+    // Draw Horizontal Grid Dividers
+    ctx.lineWidth = 2.5;
+    // Line below header row
     ctx.beginPath();
-    ctx.roundRect(16, bottomY, width - 32, bottomHeight, 20);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.lineWidth = 2;
+    ctx.moveTo(tableX, tableY + headerRowHeight);
+    ctx.lineTo(tableX + tableWidth, tableY + headerRowHeight);
+    // Line below Visitor row
+    ctx.moveTo(tableX, tableY + headerRowHeight + teamRowHeight);
+    ctx.lineTo(tableX + tableWidth, tableY + headerRowHeight + teamRowHeight);
     ctx.stroke();
 
-    // Stats Columns: 3 columns (Game Time, Pitch Counter, Latest Hit Action)
-    const colWidth = (width - 32) / 3;
+    // Line separating Team Labels column from data columns
+    ctx.beginPath();
+    ctx.moveTo(tableX + labelColWidth, tableY);
+    ctx.lineTo(tableX + labelColWidth, tableY + tableHeight);
+    ctx.stroke();
 
-    // Stat 1: Game Clock
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'top';
-    ctx.fillStyle = textSecondary;
-    ctx.font = '800 13px system-ui, sans-serif';
-    ctx.fillText('GAME TIME', 16 + (colWidth * 0.5), bottomY + 22);
-
-    ctx.fillStyle = textPrimary;
-    ctx.font = '900 28px system-ui, sans-serif';
-    ctx.fillText(formatTime(secondsElapsed), 16 + (colWidth * 0.5), bottomY + 48);
-
-    ctx.fillStyle = textSecondary;
-    ctx.font = '700 12px system-ui, sans-serif';
-    ctx.fillText(isTimerRunning ? '● CLOCK RUNNING' : '⏸ PAUSED', 16 + (colWidth * 0.5), bottomY + 88);
-
-    // Stat 2: Pitches / Pitch Count
-    ctx.fillStyle = textSecondary;
-    ctx.font = '800 13px system-ui, sans-serif';
-    ctx.fillText('PITCH COUNT', 16 + (colWidth * 1.5), bottomY + 22);
-
-    ctx.fillStyle = accent;
-    ctx.font = '900 28px system-ui, sans-serif';
-    const totalP = pitchCounterAdvanced ? (ballsCount + strikesCount) : simplePitches;
-    ctx.fillText(`${totalP} PITCHES`, 16 + (colWidth * 1.5), bottomY + 48);
-
-    ctx.fillStyle = textSecondary;
-    ctx.font = '700 12px system-ui, sans-serif';
-    if (pitchCounterAdvanced && totalP > 0) {
-      const sPct = Math.round((strikesCount / totalP) * 100);
-      const bPct = Math.round((ballsCount / totalP) * 100);
-      ctx.fillText(`${strikesCount} Strikes (${sPct}%) • ${ballsCount} Balls (${bPct}%)`, 16 + (colWidth * 1.5), bottomY + 88);
-    } else {
-      ctx.fillText(`Count Logged`, 16 + (colWidth * 1.5), bottomY + 88);
+    // Draw Vertical Lines for all 17 columns
+    for (let c = 1; c <= totalDataCols; c++) {
+      const x = tableX + labelColWidth + (c * colW);
+      // Extra heavy line before R (Runs)
+      ctx.lineWidth = (c === numInningCols + extraCols) ? 3.5 : 2;
+      ctx.beginPath();
+      ctx.moveTo(x, tableY);
+      ctx.lineTo(x, tableY + tableHeight);
+      ctx.stroke();
     }
 
-    // Stat 3: Total Hits & Latest Play
-    ctx.fillStyle = textSecondary;
-    ctx.font = '800 13px system-ui, sans-serif';
-    ctx.fillText('LATEST PLAY', 16 + (colWidth * 2.5), bottomY + 22);
+    // --- Header Text: 1 to 10, then R, H, E ---
+    ctx.fillStyle = '#18181b';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = '900 21px system-ui, -apple-system, sans-serif';
 
-    ctx.fillStyle = textPrimary;
-    ctx.font = '900 22px system-ui, sans-serif';
+    for (let i = 1; i <= numInningCols; i++) {
+      const cx = tableX + labelColWidth + ((i - 1) * colW) + (colW / 2);
+      ctx.fillText(i.toString(), cx, tableY + (headerRowHeight / 2));
+    }
+
+    // Headers for R, H, E
+    const rIndex = numInningCols + extraCols;
+    const hIndex = rIndex + 1;
+    const eIndex = rIndex + 2;
+    ctx.fillText('R', tableX + labelColWidth + (rIndex * colW) + (colW / 2), tableY + (headerRowHeight / 2));
+    ctx.fillText('H', tableX + labelColWidth + (hIndex * colW) + (colW / 2), tableY + (headerRowHeight / 2));
+    ctx.fillText('E', tableX + labelColWidth + (eIndex * colW) + (colW / 2), tableY + (headerRowHeight / 2));
+
+    // --- Team Labels in Table ---
+    // Visitor Row (Top row: Away Team)
+    ctx.textAlign = 'center';
+    ctx.font = '800 13px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#71717a';
+    ctx.fillText('VISITOR', tableX + (labelColWidth / 2), tableY + headerRowHeight + 14);
+
+    ctx.font = '900 17px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    let awayDisplay = awayTeamName;
+    if (ctx.measureText(awayDisplay).width > labelColWidth - 10) {
+      awayDisplay = awayDisplay.substring(0, 8) + '…';
+    }
+    ctx.fillText(awayDisplay, tableX + (labelColWidth / 2), tableY + headerRowHeight + 36);
+
+    // Home Row (Bottom row: Home Team)
+    ctx.font = '800 13px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#71717a';
+    ctx.fillText('HOME', tableX + (labelColWidth / 2), tableY + headerRowHeight + teamRowHeight + 14);
+
+    ctx.font = '900 17px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    let homeDisplay = homeTeamName;
+    if (ctx.measureText(homeDisplay).width > labelColWidth - 10) {
+      homeDisplay = homeDisplay.substring(0, 8) + '…';
+    }
+    ctx.fillText(homeDisplay, tableX + (labelColWidth / 2), tableY + headerRowHeight + teamRowHeight + 36);
+
+    // --- Compute Hits and Errors from Hit Log ---
+    let awayHits = 0;
+    let homeHits = 0;
+    let awayErrors = 0;
+    let homeErrors = 0;
+
+    if (Array.isArray(hitLogData)) {
+      hitLogData.forEach((h) => {
+        const outc = (h.outcome || '').toLowerCase();
+        const isInningTop = (h.inning || '').startsWith('T');
+        if (outc.includes('single') || outc.includes('double') || outc.includes('triple') || outc.includes('home run')) {
+          if (isInningTop) awayHits++;
+          else homeHits++;
+        }
+        if (outc.includes('error')) {
+          // An error charged against fielding side
+          if (isInningTop) homeErrors++;
+          else awayErrors++;
+        }
+      });
+    }
+
+    // Fill in R, H, E Values
+    ctx.font = '900 24px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#09090b';
+
+    // Visitor R, H, E
+    const visitorY = tableY + headerRowHeight + (teamRowHeight / 2);
+    ctx.fillText(awayScoreVal.toString(), tableX + labelColWidth + (rIndex * colW) + (colW / 2), visitorY);
+    ctx.fillText(awayHits.toString(), tableX + labelColWidth + (hIndex * colW) + (colW / 2), visitorY);
+    ctx.fillText(awayErrors.toString(), tableX + labelColWidth + (eIndex * colW) + (colW / 2), visitorY);
+
+    // Home R, H, E
+    const homeY = tableY + headerRowHeight + teamRowHeight + (teamRowHeight / 2);
+    ctx.fillText(homeScoreVal.toString(), tableX + labelColWidth + (rIndex * colW) + (colW / 2), homeY);
+    ctx.fillText(homeHits.toString(), tableX + labelColWidth + (hIndex * colW) + (colW / 2), homeY);
+    ctx.fillText(homeErrors.toString(), tableX + labelColWidth + (eIndex * colW) + (colW / 2), homeY);
+
+    // Fill in current inning progress marker if in range
+    ctx.font = '800 16px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#71717a';
+    if (currentInning <= 10) {
+      const colX = tableX + labelColWidth + ((currentInning - 1) * colW) + (colW / 2);
+      if (isTopInning) {
+        ctx.fillText('▲', colX, visitorY);
+      } else {
+        ctx.fillText('▼', colX, homeY);
+      }
+    }
+
+    // --- LOWER SECTION: UMPIRES BOX + GAME METRICS ---
+    const lowerY = tableY + tableHeight + 24;
+
+    // 1. Umpires Mini-Table (Left)
+    const umpX = tableX;
+    const umpW = 120;
+    const umpH = 140;
+    ctx.strokeStyle = '#18181b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(umpX, lowerY, umpW, umpH);
+
+    // Umpire header
+    ctx.beginPath();
+    ctx.moveTo(umpX, lowerY + 24);
+    ctx.lineTo(umpX + umpW, lowerY + 24);
+    ctx.stroke();
+
+    ctx.font = '800 12px system-ui, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.textAlign = 'center';
+    ctx.fillText('Umpires', umpX + (umpW / 2), lowerY + 12);
+
+    // Rows: H, 1B, 2B, 3B, LF, RF
+    const umpRoles = ['H', '1B', '2B', '3B', 'LF', 'RF'];
+    const umpRowH = (umpH - 24) / umpRoles.length;
+    for (let u = 0; u < umpRoles.length; u++) {
+      const ry = lowerY + 24 + (u * umpRowH);
+      if (u > 0) {
+        ctx.beginPath();
+        ctx.moveTo(umpX, ry);
+        ctx.lineTo(umpX + umpW, ry);
+        ctx.stroke();
+      }
+      ctx.textAlign = 'left';
+      ctx.font = '700 11px system-ui, sans-serif';
+      ctx.fillStyle = '#52525b';
+      ctx.fillText(umpRoles[u], umpX + 8, ry + (umpRowH / 2));
+    }
+
+    // 2. Game Information Fields (Venue, First Pitch, Last Play, Attendance, Duration)
+    const infoStartX = umpX + umpW + 45;
+
+    // Column 1
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+
+    // Venue
+    ctx.font = '900 18px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.fillText('Venue:', infoStartX, lowerY + 6);
+    ctx.font = '700 16px system-ui, sans-serif';
+    ctx.fillStyle = '#52525b';
+    ctx.fillText('Ballpark Yard', infoStartX + 72, lowerY + 8);
+
+    // Attendance
+    ctx.font = '900 18px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.fillText('Attendance:', infoStartX, lowerY + 70);
+    ctx.font = '700 16px system-ui, sans-serif';
+    ctx.fillStyle = '#52525b';
+    ctx.fillText('Full Bleachers', infoStartX + 124, lowerY + 72);
+
+    // Pitch Count Info
+    const totalP = pitchCounterAdvanced ? (ballsCount + strikesCount) : simplePitches;
+    ctx.font = '900 18px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.fillText('Pitches:', infoStartX, lowerY + 120);
+    ctx.font = '700 16px system-ui, sans-serif';
+    ctx.fillStyle = '#52525b';
+    const pitchStr = pitchCounterAdvanced && totalP > 0 
+      ? `${totalP} (${strikesCount}S / ${ballsCount}B)`
+      : `${totalP} Logged`;
+    ctx.fillText(pitchStr, infoStartX + 85, lowerY + 122);
+
+    // Column 2
+    const col2X = infoStartX + 260;
+
+    // First Pitch / Start
+    ctx.font = '900 18px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.fillText('First Pitch:', col2X, lowerY + 6);
+    ctx.font = '700 16px system-ui, sans-serif';
+    ctx.fillStyle = '#52525b';
+    const firstPitchTime = clockStartedAt ? new Date(clockStartedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Official Start';
+    ctx.fillText(firstPitchTime, col2X + 115, lowerY + 8);
+
+    // Duration (Game Clock)
+    ctx.font = '900 18px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.fillText('Duration:', col2X, lowerY + 70);
+    ctx.font = '700 16px system-ui, sans-serif';
+    ctx.fillStyle = '#52525b';
+    ctx.fillText(formatTime(secondsElapsed), col2X + 96, lowerY + 72);
+
+    // Status / Situation
+    ctx.font = '900 18px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.fillText('Status:', col2X, lowerY + 120);
+    ctx.font = '800 16px system-ui, sans-serif';
+    ctx.fillStyle = '#0284c7';
+    ctx.fillText(statusText, col2X + 74, lowerY + 122);
+
+    // Column 3: Last Play
+    const col3X = col2X + 225;
+    ctx.font = '900 18px system-ui, -apple-system, sans-serif';
+    ctx.fillStyle = '#18181b';
+    ctx.fillText('Last Play:', col3X, lowerY + 6);
+
+    ctx.font = '700 15px system-ui, sans-serif';
+    ctx.fillStyle = '#52525b';
     if (hitLogData && hitLogData.length > 0) {
       const last = hitLogData[0];
-      const shortDesc = `${last.player || 'Batter'} - ${last.outcome}`;
-      ctx.fillText(shortDesc.length > 18 ? shortDesc.substring(0, 16) + '…' : shortDesc, 16 + (colWidth * 2.5), bottomY + 52);
-
-      ctx.fillStyle = textSecondary;
-      ctx.font = '700 12px system-ui, sans-serif';
-      ctx.fillText(`${last.location} • ${last.inning}`, 16 + (colWidth * 2.5), bottomY + 88);
+      const pText = `${last.player || 'Batter'}: ${last.outcome}`;
+      ctx.fillText(pText.length > 20 ? pText.substring(0, 18) + '…' : pText, col3X, lowerY + 36);
+      ctx.font = '600 13px system-ui, sans-serif';
+      ctx.fillText(`to ${last.location} (${last.inning})`, col3X, lowerY + 60);
     } else {
-      ctx.fillText('No Hits Logged', 16 + (colWidth * 2.5), bottomY + 52);
-      ctx.fillStyle = textSecondary;
-      ctx.font = '700 12px system-ui, sans-serif';
-      ctx.fillText('Clean Sheet', 16 + (colWidth * 2.5), bottomY + 88);
+      ctx.fillText('None recorded', col3X, lowerY + 36);
     }
 
-    // Vertical Divider lines in bottom bar
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-    ctx.lineWidth = 1.5;
-    ctx.beginPath();
-    ctx.moveTo(16 + colWidth, bottomY + 16);
-    ctx.lineTo(16 + colWidth, bottomY + bottomHeight - 16);
-    ctx.moveTo(16 + (colWidth * 2), bottomY + 16);
-    ctx.lineTo(16 + (colWidth * 2), bottomY + bottomHeight - 16);
-    ctx.stroke();
-
-    // 5. Watermark Footer
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    ctx.font = '700 11px system-ui, sans-serif';
+    // Official Footer Mark
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('Generated with Baseball Score Keeper', width - 24, height - 8);
+    ctx.font = '700 11px system-ui, sans-serif';
+    ctx.fillStyle = '#a1a1aa';
+    ctx.fillText('Baseball Score Keeper • Official Box Score', width - 24, height - 12);
   }
 
   function updateSharePreview() {
@@ -2302,6 +2403,129 @@ document.addEventListener('DOMContentLoaded', () => {
     shareCopyBtn.addEventListener('click', () => {
       const text = generateShareMessage(selectedShareFormat);
       copyTextToClipboard(text, shareCopyBtn);
+    });
+  }
+
+  // =========================================================================
+  // THE BUNS BUTTON: Easter Egg Nuclear Bun Drop Generator
+  // =========================================================================
+  const bunsNukeBtn = document.getElementById('buns-nuke-btn');
+  const bunsStatusMsg = document.getElementById('buns-status-msg');
+  let bunRainInterval = null;
+
+  function startBunRain() {
+    if (bunRainInterval) return; // Prevent multiple intervals
+    bunRainInterval = setInterval(() => {
+      const bun = document.createElement('div');
+      bun.className = 'bun-drop';
+      bun.style.backgroundImage = "url('https://codehs.com/uploads/79411300e7ae3cb0766885493066194d')";
+
+      // Randomize horizontal start, fall speed and scale
+      const startX = Math.random() * (window.innerWidth - 60);
+      const duration = Math.random() * 2 + 2; // 2 - 4 seconds
+      const size = Math.random() * 40 + 40; // 40 - 80px
+
+      bun.style.left = `${startX}px`;
+      bun.style.width = `${size}px`;
+      bun.style.height = `${size}px`;
+      bun.style.animationDuration = `${duration}s`;
+
+      document.body.appendChild(bun);
+
+      // Cleanup element after animation ends
+      setTimeout(() => {
+        if (bun.parentNode) bun.remove();
+      }, duration * 1000);
+    }, 150); // Drop a bun every 150ms
+  }
+
+  function stopBunRain() {
+    if (bunRainInterval) {
+      clearInterval(bunRainInterval);
+      bunRainInterval = null;
+    }
+  }
+
+  function playBuns() {
+    const trumpet = document.getElementById('audio-trumpet');
+    const randomAudios = [
+      document.getElementById('audio-rand-1'),
+      document.getElementById('audio-rand-3'),
+      document.getElementById('audio-rand-4'),
+      document.getElementById('audio-rand-5'),
+      document.getElementById('audio-rand-6'),
+      document.getElementById('audio-rand-7'),
+      document.getElementById('audio-rand-8'),
+      document.getElementById('audio-rand-9'),
+      document.getElementById('audio-rand-10')
+    ];
+
+    if (bunsNukeBtn) {
+      bunsNukeBtn.classList.add('pressed');
+      setTimeout(() => bunsNukeBtn.classList.remove('pressed'), 400);
+    }
+
+    triggerHaptic([60, 60, 80, 80, 100]);
+
+    // Start raining buns immediately
+    startBunRain();
+
+    if (!trumpet) {
+      setTimeout(stopBunRain, 4000);
+      return;
+    }
+
+    try {
+      trumpet.currentTime = 0;
+      const playPromise = trumpet.play();
+      if (playPromise !== undefined) {
+        playPromise.catch((e) => {
+          console.log("Trumpet failed", e);
+          setTimeout(stopBunRain, 4000);
+        });
+      }
+    } catch (e) {
+      console.log("Trumpet playback error", e);
+      setTimeout(stopBunRain, 4000);
+    }
+
+    trumpet.onended = () => {
+      const valid = randomAudios.filter((a) => a && a.src && a.src.trim() !== "");
+      if (valid.length > 0) {
+        const selected = valid[Math.floor(Math.random() * valid.length)];
+        try {
+          selected.currentTime = 0;
+          const randomPlayPromise = selected.play();
+          if (randomPlayPromise !== undefined) {
+            randomPlayPromise.catch((e) => {
+              console.log("Dialogue failed", e);
+              stopBunRain();
+              if (bunsStatusMsg) {
+              }
+            });
+          }
+        } catch (_) {
+          stopBunRain();
+        }
+
+        // Stop raining only after the dialogue audio ends
+        selected.onended = () => {
+          stopBunRain();
+          if (bunsStatusMsg) {
+          }
+        };
+      } else {
+        // If no dialogue audio found, stop after trumpet ends
+        stopBunRain();
+        if (bunsStatusMsg) {
+        }
+      }
+    };
+  }
+
+  if (bunsNukeBtn) {
+    bunsNukeBtn.addEventListener('click', () => {
+      playBuns();
     });
   }
 
