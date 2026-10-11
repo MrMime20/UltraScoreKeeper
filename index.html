@@ -8,8 +8,9 @@
   <meta property="og:title" content="baseball score keeper">
   <meta property="og:description" content="A baseball score keeper application.">
   <link rel="stylesheet" href="styles.css">
-  <!-- Font Awesome for Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Phosphor Icons Web Fonts -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
 </head>
 <body>
 
@@ -18,19 +19,19 @@
     <!-- Top Row Header -->
     <header class="top-row">
       <button class="icon-btn" id="share-btn" aria-label="Share Game Score" title="Share Game Score">
-        <i class="fa-solid fa-share-nodes"></i>
+        <i class="ph ph-share-network"></i>
       </button>
       
       <!-- Interactive Compact Timer Display -->
       <button type="button" class="timer-display" id="timer-display" aria-label="Game Clock: Tap to pause or resume" title="Tap to pause or resume">
         <span class="timer-status-badge" id="timer-status-badge">
-          <i class="fa-solid fa-play" id="timer-icon"></i>
+          <i class="ph-bold ph-play" id="timer-icon"></i>
         </span>
         <span class="timer-digits" id="timer">00:00:00</span>
       </button>
       
       <button class="icon-btn" id="settings-btn" aria-label="Game Settings" title="Settings & Themes">
-        <i class="fa-solid fa-gear"></i>
+        <i class="ph ph-gear"></i>
       </button>
     </header>
 
@@ -69,10 +70,10 @@
         <span class="inning-num" id="inning-val" aria-label="Current Inning">1</span>
         <div class="inning-arrows">
           <button type="button" class="arrow-btn active" id="inning-up" aria-label="Top of Inning" title="Top of Inning">
-            <i class="fa-solid fa-caret-up"></i>
+            <i class="ph-bold ph-caret-up"></i>
           </button>
           <button type="button" class="arrow-btn" id="inning-down" aria-label="Bottom of Inning" title="Bottom of Inning">
-            <i class="fa-solid fa-caret-down"></i>
+            <i class="ph-bold ph-caret-down"></i>
           </button>
         </div>
       </div>
@@ -126,7 +127,7 @@
 
     <!-- Advanced Tools Button -->
     <button type="button" class="advanced-tools-btn" id="advanced-tools-btn" aria-label="Advanced Tools" title="Advanced Tools">
-      <i class="fa-solid fa-screwdriver-wrench"></i>
+      <i class="ph-bold ph-wrench"></i>
       <span>Advanced Tools</span>
     </button>
 
@@ -136,9 +137,9 @@
         <div class="drawer-header">
           <div class="drawer-handle-bar"></div>
           <div class="drawer-title-row">
-            <h2 id="settings-title"><i class="fa-solid fa-gear"></i> Settings</h2>
+            <h2 id="settings-title"><i class="ph ph-gear"></i> Settings</h2>
             <button type="button" class="close-drawer-btn" id="close-settings-btn" aria-label="Close Settings">
-              <i class="fa-solid fa-xmark"></i>
+              <i class="ph ph-x"></i>
             </button>
           </div>
         </div>
@@ -258,11 +259,11 @@
             <label class="group-label">Game Clock</label>
             <div class="actions-row">
               <button type="button" class="action-btn" id="modal-timer-toggle-btn">
-                <i class="fa-solid fa-pause" id="modal-timer-icon"></i>
+                <i class="ph-bold ph-pause" id="modal-timer-icon"></i>
                 <span id="modal-timer-text">Pause Clock</span>
               </button>
               <button type="button" class="action-btn reset" id="modal-timer-reset-btn">
-                <i class="fa-solid fa-rotate-left"></i>
+                <i class="ph-bold ph-arrow-counter-clockwise"></i>
                 <span>Reset (00:00)</span>
               </button>
             </div>
@@ -273,11 +274,11 @@
             <label class="group-label">Score Management</label>
             <div class="actions-row">
               <button type="button" class="action-btn" id="clear-runs-btn">
-                <i class="fa-solid fa-eraser"></i>
+                <i class="ph-bold ph-eraser"></i>
                 <span>Reset Scores</span>
               </button>
               <button type="button" class="action-btn danger" id="reset-game-btn">
-                <i class="fa-solid fa-arrows-rotate"></i>
+                <i class="ph-bold ph-arrows-clockwise"></i>
                 <span>Start New Game</span>
               </button>
             </div>
@@ -292,9 +293,9 @@
         <div class="drawer-header">
           <div class="drawer-handle-bar"></div>
           <div class="drawer-title-row">
-            <h2 id="share-title"><i class="fa-solid fa-share-nodes"></i> Share Game</h2>
+            <h2 id="share-title"><i class="ph ph-share-network"></i> Share Game</h2>
             <button type="button" class="close-drawer-btn" id="close-share-btn" aria-label="Close Share Menu">
-              <i class="fa-solid fa-xmark"></i>
+              <i class="ph ph-x"></i>
             </button>
           </div>
         </div>
@@ -302,27 +303,27 @@
         <div class="drawer-body">
           <!-- Summary Type Selection -->
           <div class="settings-group">
-            <label class="group-label">Format</label>
+            <label class="group-label">Type</label>
             <div class="summary-type-grid" id="summary-type-grid">
               <button type="button" class="summary-card active" data-format="basic">
-                <i class="fa-solid fa-calculator"></i>
+                <i class="ph-bold ph-number-square-zero"></i>
                 <div class="summary-card-info">
                   <span class="summary-card-name">Quick Score</span>
                   <span class="summary-card-desc">Team runs</span>
                 </div>
               </button>
               <button type="button" class="summary-card" data-format="standard">
-                <i class="fa-solid fa-baseball-bat-ball"></i>
+                <i class="ph-bold ph-baseball-cap"></i>
                 <div class="summary-card-info">
                   <span class="summary-card-name">Game Status</span>
                   <span class="summary-card-desc">Score, inning & outs</span>
                 </div>
               </button>
               <button type="button" class="summary-card" data-format="broadcast">
-                <i class="fa-solid fa-bullhorn"></i>
+                <i class="ph-bold ph-megaphone"></i>
                 <div class="summary-card-info">
-                  <span class="summary-card-name">Live Sportscast</span>
-                  <span class="summary-card-desc">Play-by-play announcer call</span>
+                  <span class="summary-card-name">Long Summary</span>
+                  <span class="summary-card-desc">Play-by-play announcer-style</span>
                 </div>
               </button>
             </div>
@@ -334,7 +335,7 @@
               <label class="group-label">Preview</label>
               <div class="preview-actions">
                 <button type="button" class="copy-preview-btn" id="copy-preview-btn" title="Copy preview text">
-                  <i class="fa-solid fa-copy"></i> <span>Copy</span>
+                  <i class="ph-bold ph-copy"></i> <span>Copy</span>
                 </button>
               </div>
             </div>
@@ -348,19 +349,19 @@
             <label class="group-label">Send Score</label>
             <div class="share-channels-grid clean-channels-grid">
               <button type="button" class="share-channel-btn native" id="share-native-btn" title="Share via device">
-                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <i class="ph-bold ph-share"></i>
                 <span>Share...</span>
               </button>
               <button type="button" class="share-channel-btn sms" id="share-sms-btn" title="Send as text message">
-                <i class="fa-solid fa-comment-sms"></i>
+                <i class="ph-bold ph-chat-circle-dots"></i>
                 <span>Message</span>
               </button>
               <button type="button" class="share-channel-btn email" id="share-email-btn" title="Share via email">
-                <i class="fa-solid fa-envelope"></i>
+                <i class="ph-bold ph-envelope"></i>
                 <span>Email</span>
               </button>
               <button type="button" class="share-channel-btn copy" id="share-copy-btn" title="Copy score to clipboard">
-                <i class="fa-solid fa-copy"></i>
+                <i class="ph-bold ph-copy"></i>
                 <span>Copy Score</span>
               </button>
             </div>
@@ -375,9 +376,9 @@
         <div class="drawer-header">
           <div class="drawer-handle-bar"></div>
           <div class="drawer-title-row">
-            <h2 id="advanced-title"><i class="fa-solid fa-screwdriver-wrench"></i> Advanced Tools</h2>
+            <h2 id="advanced-title"><i class="ph ph-wrench"></i> Advanced Tools</h2>
             <button type="button" class="close-drawer-btn" id="close-advanced-btn" aria-label="Close Advanced Tools">
-              <i class="fa-solid fa-xmark"></i>
+              <i class="ph ph-x"></i>
             </button>
           </div>
         </div>
@@ -389,8 +390,8 @@
             <div class="canvas-module collapsed" id="module-hit-log">
               <div class="module-header" id="module-hit-log-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="module-header-left">
-                  <i class="fa-solid fa-chevron-down module-chevron" id="chevron-hit-log"></i>
-                  <span class="module-title-text"><i class="fa-solid fa-baseball"></i> Hit Log</span>
+                  <i class="ph-bold ph-caret-down module-chevron" id="chevron-hit-log"></i>
+                  <span class="module-title-text"><i class="ph-bold ph-baseball-helmet"></i> Hit Log</span>
                 </div>
                 <div class="module-header-right">
                   <span class="module-badge" id="hit-log-badge">0 Logged</span>
@@ -469,7 +470,7 @@
                           <div id="first-base-thing"></div>
                           <!-- Ball Hit Marker -->
                           <div id="stadium-hit-marker" class="stadium-ball-pin">
-                            <div class="ball-pin-core"><i class="fa-solid fa-baseball"></i></div>
+                            <div class="ball-pin-core"><i class="ph-bold ph-baseball"></i></div>
                             <div class="ball-pin-ring"></div>
                           </div>
                         </div>
@@ -478,13 +479,13 @@
 
                     <!-- Informational Note for Walk / Strikeout (No Diamond Needed) -->
                     <div class="no-diamond-msg" id="no-diamond-msg" style="display: none;">
-                      <i class="fa-solid fa-circle-info"></i>
+                      <i class="ph-bold ph-info"></i>
                       <span>No field location needed for Walk or Strikeout.</span>
                     </div>
 
                     <!-- Submit Log Button -->
                     <button type="button" class="log-hit-submit-btn" id="log-hit-submit-btn">
-                      <i class="fa-solid fa-plus"></i>
+                      <i class="ph-bold ph-plus"></i>
                       <span>Save Play</span>
                     </button>
                   </div>
@@ -494,7 +495,7 @@
                     <div class="logged-hits-header">
                       <div class="hits-header-title-wrap">
                         <span class="logged-hits-title">Hit Log</span>
-                        <span class="reorder-hint-tag"><i class="fa-solid fa-arrows-up-down"></i> Hold & drag to reorder</span>
+                        <span class="reorder-hint-tag"><i class="ph-bold ph-arrows-down-up"></i> Hold & drag to reorder</span>
                       </div>
                       <button type="button" class="clear-hits-btn" id="clear-hits-btn" title="Clear all logged hits">Clear All</button>
                     </div>
@@ -510,8 +511,8 @@
             <div class="canvas-module collapsed" id="module-pitch-counter">
               <div class="module-header" id="module-pitch-counter-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="module-header-left">
-                  <i class="fa-solid fa-chevron-down module-chevron" id="chevron-pitch-counter"></i>
-                  <span class="module-title-text"><i class="fa-solid fa-calculator"></i> Pitch Counter</span>
+                  <i class="ph-bold ph-caret-down module-chevron" id="chevron-pitch-counter"></i>
+                  <span class="module-title-text"><i class="ph-bold ph-baseball"></i> Pitch Counter</span>
                 </div>
                 <div class="module-header-right">
                   <span class="module-badge" id="pitch-counter-badge">Disabled</span>
@@ -532,12 +533,12 @@
                     </label>
 
                     <div class="pitch-settings-hint">
-                      <i class="fa-solid fa-circle-info"></i>
+                      <i class="ph-bold ph-info"></i>
                       <span>Simple mode only tracks <strong>total pitches</strong>. Advanced mode counts <strong>balls</strong> and <strong>strikes</strong> and calculates the strike %. To remove pitches, <strong>press and hold</strong>.</span>
                     </div>
 
                     <button type="button" class="action-btn" id="reset-pitches-btn">
-                      <i class="fa-solid fa-rotate-left"></i>
+                      <i class="ph-bold ph-arrow-counter-clockwise"></i>
                       <span>Reset Pitch Count (0)</span>
                     </button>
                   </div>
@@ -549,8 +550,8 @@
             <div class="canvas-module collapsed" id="module-buns-button">
               <div class="module-header" id="module-buns-button-header" role="button" tabindex="0" aria-expanded="false">
                 <div class="module-header-left">
-                  <i class="fa-solid fa-chevron-down module-chevron" id="chevron-buns-button"></i>
-                  <span class="module-title-text"><i class="fa-solid fa-burger"></i> THE BUNS BUTTON</span>
+                  <i class="ph-bold ph-caret-down module-chevron" id="chevron-buns-button"></i>
+                  <span class="module-title-text"><i class="ph-bold ph-bread"></i> THE BUNS BUTTON</span>
                 </div>
                 <div class="module-header-right">
                   <span class="module-badge" style="background-color: rgba(239, 68, 68, 0.2); color: #ef4444; border-color: rgba(239, 68, 68, 0.4);">DANGER</span>
@@ -560,15 +561,15 @@
               <div class="module-collapse-wrapper" id="module-buns-button-wrapper">
                 <div class="module-body buns-module-body" id="module-buns-button-body">
                   <div class="buns-warning-banner">
-                    <i class="fa-solid fa-triangle-exclamation"></i>
-                    <span>Authorized Personnel Only</span>
+                    <i class="ph-bold ph-warning"></i>
+                    <span>USE ONLY IN <em>EMERGENCY!</em></span>
                   </div>
 
                   <!-- Realistic 3D Red Nuke Activation Button -->
                   <div class="nuke-housing" id="nuke-housing" title="PRESS AT YOUR OWN RISK">
                     <div class="nuke-bezel-ring">
                       <button type="button" class="nuke-red-button" id="buns-nuke-btn" aria-label="Press the Buns Button">
-                        <i class="fa-solid fa-radiation nuke-btn-icon"></i>
+                        <i class="ph-bold ph-warning-octagon nuke-btn-icon"></i>
                         <span class="nuke-btn-label">BUNS</span>
                       </button>
                     </div>
@@ -587,7 +588,7 @@
     <div class="settings-backdrop reset-confirm-backdrop" id="reset-confirm-backdrop" aria-hidden="true">
       <div class="reset-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="reset-confirm-title">
         <div class="reset-confirm-icon">
-          <i class="fa-solid fa-triangle-exclamation"></i>
+          <i class="ph-bold ph-warning"></i>
         </div>
         <h3 id="reset-confirm-title">Start New Game?</h3>
         <p class="reset-confirm-desc">This will reset all scores, outs, innings, game clock, and hit log from saved storage. This action cannot be undone.</p>

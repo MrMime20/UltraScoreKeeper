@@ -1026,8 +1026,8 @@ button {
   box-shadow: 0 -16px 48px var(--shadow-color);
   max-height: 86vh;
   overflow-y: auto;
-  overscroll-behavior: contain !important;
-  overscroll-behavior-y: contain !important;
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
   touch-action: pan-y !important;
   -webkit-overflow-scrolling: touch;
   transform: translateY(105%);
@@ -1208,8 +1208,8 @@ button {
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
-  overscroll-behavior: contain !important;
-  overscroll-behavior-y: contain !important;
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
   touch-action: pan-y !important;
   -webkit-overflow-scrolling: touch;
 }
@@ -1716,8 +1716,8 @@ button {
   flex-direction: column;
   gap: 16px;
   overflow-y: auto;
-  overscroll-behavior: contain !important;
-  overscroll-behavior-y: contain !important;
+  overscroll-behavior: none !important;
+  overscroll-behavior-y: none !important;
   touch-action: pan-y !important;
   -webkit-overflow-scrolling: touch;
 }

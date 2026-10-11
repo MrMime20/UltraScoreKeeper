@@ -713,7 +713,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (pitchBallPct) pitchBallPct.textContent = `${bPct}%`;
       }
 
-      if (pitchCounterBadge) pitchCounterBadge.textContent = `${totalAdv} Pitches (Adv)`;
+      if (pitchCounterBadge) pitchCounterBadge.textContent = `${totalAdv} Pitches`;
     } else {
       if (pitchViewSimple) pitchViewSimple.style.display = 'flex';
       if (pitchViewAdvanced) pitchViewAdvanced.style.display = 'none';
@@ -887,10 +887,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (timerIcon) {
       // When running: SHOW pause icon (clicking will pause)
       // When paused: SHOW play icon (clicking will resume/play)
-      timerIcon.className = isTimerRunning ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+      timerIcon.className = isTimerRunning ? 'ph-bold ph-pause' : 'ph-bold ph-play';
     }
     if (modalTimerIcon) {
-      modalTimerIcon.className = isTimerRunning ? 'fa-solid fa-pause' : 'fa-solid fa-play';
+      modalTimerIcon.className = isTimerRunning ? 'ph-bold ph-pause' : 'ph-bold ph-play';
     }
     if (modalTimerText) {
       modalTimerText.textContent = isTimerRunning ? 'Pause Clock' : 'Start Clock';
@@ -1175,12 +1175,16 @@ document.addEventListener('DOMContentLoaded', () => {
       // Clear game data from LocalStorage
       localStorage.removeItem('baseball_game_state');
       localStorage.removeItem('baseball_hit_log');
+      localStorage.removeItem('baseball_home_team');
+      localStorage.removeItem('baseball_away_team');
 
       homeScoreVal = 0;
       awayScoreVal = 0;
       currentInning = 1;
       isTopInning = true;
       currentOuts = 0;
+      homeTeamName = 'Home';
+      awayTeamName = 'Away';
 
       // Clock reset
       clockStartedAt = null;
@@ -1209,6 +1213,12 @@ document.addEventListener('DOMContentLoaded', () => {
       if (homeScoreEl) homeScoreEl.textContent = '0';
       if (awayScoreEl) awayScoreEl.textContent = '0';
       if (timerEl) timerEl.textContent = formatTime(0);
+
+      if (homeNameInput) homeNameInput.value = homeTeamName;
+      if (awayNameInput) awayNameInput.value = awayTeamName;
+      if (homeLabelEl) homeLabelEl.textContent = homeTeamName;
+      if (awayLabelEl) awayLabelEl.textContent = awayTeamName;
+      fitTeamNames();
 
       clearTimeout(sideChangeTimeout);
       updateInningDisplay();
@@ -1537,7 +1547,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Outside the field: past outfield fence top curve (dist > 620) or behind home plate bounds (dy < -25)
     // Clicks outside do NOT register; prompt the user to tap inside the field.
-    if (dist > 680 || dy < -25) {
+    if (dist > 700 || dy < -50) {
       return null;
     }
 
@@ -1553,11 +1563,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // A. INFIELD (dist <= dirtRadius)
     if (dist <= dirtRadius) {
-      if (dist < 80) return 'Home Plate';
+      if (dist < 80) return 'Catcher';
 
       // Pitcher's Mound (centered at 490, 460)
       if (Math.hypot(x - 490, y - 460) <= 55 || (dist < 250 && Math.abs(angleDeg) <= 15)) {
-        return "Pitcher's Mound";
+        return "Pitcher";
       }
 
       // Proximity to bases
@@ -1826,7 +1836,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (hitLogData.length === 0) {
-      loggedHitsList.innerHTML = `<div class="hit-empty-hint">No plays logged yet. Tap the diamond and save your first play!</div>`;
+      loggedHitsList.innerHTML = `<div class="hit-empty-hint">No plays logged yet.</div>`;
       return;
     }
 
@@ -1839,14 +1849,14 @@ document.addEventListener('DOMContentLoaded', () => {
       const inningDisplay = hit.inning || 'T1';
 
       card.innerHTML = `
-        <span class="reorder-handle" title="Hold and drag to reorder"><i class="fa-solid fa-grip-vertical"></i></span>
+        <span class="reorder-handle" title="Hold and drag to reorder"><i class="ph-bold ph-dots-six-vertical"></i></span>
         <div class="hit-card-content">
           <span class="hit-play-sentence">${escapeHtml(sentenceText)}</span>
         </div>
         <div class="hit-card-right">
           <span class="hit-inning-badge">${escapeHtml(inningDisplay)}</span>
           <button type="button" class="delete-hit-btn" title="Delete play" data-id="${hit.id}">
-            <i class="fa-solid fa-trash-can"></i>
+            <i class="ph-bold ph-trash"></i>
           </button>
         </div>
       `;
@@ -1954,7 +1964,7 @@ document.addEventListener('DOMContentLoaded', () => {
       triggerHaptic(30);
       if (btnElement) {
         const originalContent = btnElement.innerHTML;
-        btnElement.innerHTML = `<i class="fa-solid fa-check"></i> <span>Copied!</span>`;
+        btnElement.innerHTML = `<i class="ph-bold ph-check"></i> <span>Copied!</span>`;
         setTimeout(() => {
           btnElement.innerHTML = originalContent;
         }, 1500);
