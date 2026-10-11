@@ -1,4 +1,135 @@
 /* styles.css - Clean, Modern Mobile Baseball Scorekeeper */
+/* 1. Powder Dusk (Dark / Twilight Indigo Base) */
+body[data-theme="powder-dusk"] {
+  --bg-body: #252b3c;           /* Deep Twilight Indigo */
+  --bg-card: #3a405a;           /* Twilight Indigo */
+  --border-color: #99b2dd;      /* Powder Blue */
+  --text-primary: #f9dec9;      /* Powder Petal */
+  --text-secondary: #e9afa3;    /* Powder Blush */
+  --accent-color: #99b2dd;      /* Powder Blue */
+  --arrow-inactive: #4d546a;    /* Muted Slate Indigo */
+  --out-circle-active: #f9dec9; /* Powder Petal */
+  --drawer-bg: #3a405a;         /* Twilight Indigo */
+  --drawer-card: #2e344a;       /* Darker Slate Card */
+  --drawer-border: #99b2dd;     /* Powder Blue */
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --toast-bg: #2e344a;          /* Darker Slate Base */
+  --toast-text: #f9dec9;        /* Powder Petal */
+  --toast-badge-bg: #99b2dd;    /* Powder Blue */
+  --toast-badge-text: #252b3c;  /* Deep Twilight Indigo */
+  --preview-bg: #222736;        /* Subdued Slate Backdrop */
+  --preview-border: #99b2dd;    /* Powder Blue */
+}
+
+/* 2. Carrot Peach (Warm Light / Earth Tone Base) */
+body[data-theme="carrot-peach"] {
+  --bg-body: #f8dda4;           /* Soft Peach Base */
+  --bg-card: #fff2d6;           /* Brightened Peach Card */
+  --border-color: #813405;      /* Rust Brown */
+  --text-primary: #5c2200;      /* Dark Rust Brown for High Contrast Text */
+  --text-secondary: #813405;    /* Rust Brown */
+  --accent-color: #f9a03f;      /* Carrot Orange */
+  --arrow-inactive: #e0c890;    /* Muted Beige Arrow */
+  --out-circle-active: #d45113; /* Spicy Orange */
+  --drawer-bg: #f8dda4;         /* Soft Peach */
+  --drawer-card: #fff2d6;       /* Brightened Peach Card */
+  --drawer-border: #813405;     /* Rust Brown */
+  --shadow-color: rgba(129, 52, 5, 0.15);
+  --toast-bg: #ddf9c1;          /* Tea Green */
+  --toast-text: #324719;        /* Dark Tea Green Text */
+  --toast-badge-bg: #d45113;    /* Spicy Orange */
+  --toast-badge-text: #ffffff;  /* White Text */
+  --preview-bg: #ddf9c1;        /* Tea Green Backdrop */
+  --preview-border: #813405;    /* Rust Brown */
+}
+
+/* 3. French Tangerine (French Blue Dark Base) */
+body[data-theme="french-tangerine"] {
+  --bg-body: #243156;           /* Darker French Blue Base */
+  --bg-card: #324376;           /* French Blue */
+  --border-color: #f5dd90;      /* Light Gold */
+  --text-primary: #f5dd90;      /* Light Gold */
+  --text-secondary: #586ba4;    /* Smart Blue */
+  --accent-color: #f68e5f;      /* Tangerine Dream */
+  --arrow-inactive: #435487;    /* Muted Blue */
+  --out-circle-active: #f68e5f; /* Tangerine Dream */
+  --drawer-bg: #324376;         /* French Blue */
+  --drawer-card: #273662;       /* Deeper French Blue Card */
+  --drawer-border: #f5dd90;     /* Light Gold */
+  --shadow-color: rgba(0, 0, 0, 0.65);
+  --toast-bg: #273662;          /* Deeper French Blue Base */
+  --toast-text: #f5dd90;        /* Light Gold */
+  --toast-badge-bg: #f68e5f;    /* Tangerine Dream */
+  --toast-badge-text: #ffffff;  /* White Text */
+  --preview-bg: #1e2847;        /* Subdued Dark Navy Backdrop */
+  --preview-border: #f5dd90;    /* Light Gold */
+}
+
+/* 4. Royal Pollen (Electric Royal Azure Base) */
+body[data-theme="royal-pollen"] {
+  --bg-body: #1e41c4;           /* Darker Royal Azure */
+  --bg-card: #2f52e0;           /* Royal Azure */
+  --border-color: #ffffff;      /* Pure White */
+  --text-primary: #ffffff;      /* Pure White */
+  --text-secondary: #f9cb40;    /* Golden Pollen */
+  --accent-color: #bced09;      /* Chartreuse */
+  --arrow-inactive: #5773ee;    /* Muted Azure Arrow */
+  --out-circle-active: #bced09; /* Chartreuse */
+  --drawer-bg: #2f52e0;         /* Royal Azure */
+  --drawer-card: #2243cb;       /* Deep Royal Card */
+  --drawer-border: #ffffff;     /* Pure White */
+  --shadow-color: rgba(0, 0, 0, 0.5);
+  --toast-bg: #ff715b;          /* Vibrant Coral */
+  --toast-text: #ffffff;        /* White Text */
+  --toast-badge-bg: #bced09;    /* Chartreuse */
+  --toast-badge-text: #1b2600;  /* High-Contrast Dark Olive */
+  --preview-bg: #2243cb;        /* Deep Royal Backdrop */
+  --preview-border: #f9cb40;    /* Golden Pollen */
+}
+
+/* 5. Majorelle Grape (Majorelle Blue Base) */
+body[data-theme="majorelle-grape"] {
+  --bg-body: #512dc9;           /* Deep Majorelle Blue */
+  --bg-card: #623cea;           /* Majorelle Blue */
+  --border-color: #e7dfc6;      /* Sand Dune */
+  --text-primary: #e9f1f7;      /* Alice Blue */
+  --text-secondary: #e7dfc6;    /* Sand Dune */
+  --accent-color: #e7dfc6;      /* Sand Dune */
+  --arrow-inactive: #4321b0;    /* Dark Muted Blue-Purple */
+  --out-circle-active: #e7dfc6; /* Sand Dune */
+  --drawer-bg: #54426b;         /* Vintage Grape */
+  --drawer-card: #45355a;       /* Dark Vintage Grape Card */
+  --drawer-border: #e7dfc6;     /* Sand Dune */
+  --shadow-color: rgba(0, 0, 0, 0.6);
+  --toast-bg: #54426b;          /* Vintage Grape Base */
+  --toast-text: #e9f1f7;        /* Alice Blue */
+  --toast-badge-bg: #e7dfc6;    /* Sand Dune */
+  --toast-badge-text: #512dc9;  /* Majorelle Blue */
+  --preview-bg: #4122aa;        /* Deep Blue Backdrop */
+  --preview-border: #e7dfc6;    /* Sand Dune */
+}
+
+/* 6. Coffee Seagrass (Coffee Bean Dark Base) */
+body[data-theme="coffee-seagrass"] {
+  --bg-body: #13070c;           /* Coffee Bean */
+  --bg-card: #221219;           /* Dark Coffee Tint Card */
+  --border-color: #61988e;      /* Seagrass */
+  --text-primary: #f1e8b8;      /* Vanilla Custard */
+  --text-secondary: #e3d8f1;    /* Lavender Veil */
+  --accent-color: #ff6f59;      /* Vibrant Coral */
+  --arrow-inactive: #422631;    /* Muted Coffee Arrow */
+  --out-circle-active: #ff6f59; /* Vibrant Coral */
+  --drawer-bg: #221219;         /* Dark Coffee Tint */
+  --drawer-card: #2e1a23;       /* Lighter Coffee Card */
+  --drawer-border: #61988e;     /* Seagrass */
+  --shadow-color: rgba(0, 0, 0, 0.75);
+  --toast-bg: #2e1a23;          /* Lighter Coffee Base */
+  --toast-text: #f1e8b8;        /* Vanilla Custard */
+  --toast-badge-bg: #ff6f59;    /* Vibrant Coral */
+  --toast-badge-text: #ffffff;  /* White Text */
+  --preview-bg: #1c0d13;        /* Subdued Dark Coffee Backdrop */
+  --preview-border: #61988e;    /* Seagrass */
+}
 
 :root, body[data-theme="light"] {
   --bg-body: #f4f5f8;
@@ -43,24 +174,24 @@ body[data-theme="dark"] {
 }
 
 body[data-theme="ballpark"] {
-  --bg-body: #06170f;
-  --bg-card: #0d281a;
-  --border-color: #f5eedb;
-  --text-primary: #fcf9ee;
-  --text-secondary: #8da99a;
-  --accent-color: #f59e0b;
-  --arrow-inactive: #274b37;
-  --out-circle-active: #f5eedb;
-  --drawer-bg: #0d281a;
-  --drawer-card: #153926;
-  --drawer-border: #23543b;
+  --bg-body: #1c1521;           /* Darker than Midnight Violet for deep background */
+  --bg-card: #2f2235;           /* Midnight Violet */
+  --border-color: #60495a;        /* Mauve Shadow */
+  --text-primary: #bfc3ba;        /* Ash Grey */
+  --text-secondary: #a9aca9;      /* Silver */
+  --accent-color: #60495a;        /* Mauve Shadow (can also use a brighter tint if needed) */
+  --arrow-inactive: #3f3244;      /* Vintage Grape */
+  --out-circle-active: #bfc3ba;   /* Ash Grey */
+  --drawer-bg: #2f2235;         /* Midnight Violet */
+  --drawer-card: #3f3244;       /* Vintage Grape */
+  --drawer-border: #60495a;     /* Mauve Shadow */
   --shadow-color: rgba(0, 0, 0, 0.6);
-  --toast-bg: #153926;
-  --toast-text: #fcf9ee;
-  --toast-badge-bg: #f59e0b;
-  --toast-badge-text: #06170f;
-  --preview-bg: #091f14;
-  --preview-border: #23543b;
+  --toast-bg: #3f3244;          /* Vintage Grape */
+  --toast-text: #bfc3ba;        /* Ash Grey */
+  --toast-badge-bg: #60495a;    /* Mauve Shadow */
+  --toast-badge-text: #bfc3ba;   /* Ash Grey */
+  --preview-bg: #281c2e;        /* Dark Purple Accent */
+  --preview-border: #60495a;     /* Mauve Shadow */
 }
 
 body[data-theme="royal"] {
@@ -106,87 +237,86 @@ body[data-theme="vintage"] {
 }
 
 body[data-theme="sunset"] {
-  --bg-body: #140b0b;
-  --bg-card: #221213;
-  --border-color: #fb923c;
-  --text-primary: #fff7ed;
-  --text-secondary: #fdba74;
-  --accent-color: #f59e0b;
-  --arrow-inactive: #4d2621;
-  --out-circle-active: #f59e0b;
-  --drawer-bg: #1f1011;
-  --drawer-card: #2c1618;
-  --drawer-border: #522723;
-  --shadow-color: rgba(0, 0, 0, 0.65);
-  --toast-bg: #2c1618;
-  --toast-text: #fff7ed;
-  --toast-badge-bg: #f59e0b;
-  --toast-badge-text: #140b0b;
-  --preview-bg: #1a0c0e;
-  --preview-border: #522723;
+  --bg-body: #fff4db;           /* Papaya Whip */
+  --bg-card: #ffebd0;           /* Slightly deeper warm cream tint */
+  --border-color: #018e42;      /* Sea Green */
+  --text-primary: #122119;      /* Dark pine green for excellent legibility */
+  --text-secondary: #005a2a;    /* Deep Sea Green tint */
+  --accent-color: #b8336a;      /* Berry Crush */
+  --arrow-inactive: #e8d3b5;    /* Muted warm beige */
+  --out-circle-active: #b8336a; /* Berry Crush */
+  --drawer-bg: #fff4db;         /* Papaya Whip */
+  --drawer-card: #ffebd0;       /* Warm cream card */
+  --drawer-border: #018e42;     /* Sea Green */
+  --shadow-color: rgba(18, 33, 25, 0.12);
+  --toast-bg: #88d9e6;          /* Frosted Blue */
+  --toast-text: #122119;        /* Dark text for contrast on light blue */
+  --toast-badge-bg: #f7d002;    /* Gold */
+  --toast-badge-text: #122119;  /* Dark text on gold */
+  --preview-bg: #88d9e6;        /* Frosted Blue backdrop */
+  --preview-border: #018e42;    /* Sea Green */
 }
 
 body[data-theme="neon"] {
-  --bg-body: #0a0714;
-  --bg-card: #150f29;
-  --border-color: #c084fc;
-  --text-primary: #f5f3ff;
-  --text-secondary: #a78bfa;
-  --accent-color: #ec4899;
-  --arrow-inactive: #38295c;
-  --out-circle-active: #ec4899;
-  --drawer-bg: #120d24;
-  --drawer-card: #1d1538;
-  --drawer-border: #3b2d66;
-  --shadow-color: rgba(0, 0, 0, 0.7);
-  --toast-bg: #1d1538;
-  --toast-text: #f5f3ff;
-  --toast-badge-bg: #ec4899;
-  --toast-badge-text: #ffffff;
-  --preview-bg: #0f0a1f;
-  --preview-border: #3b2d66;
+  --bg-body: #090302;           /* Pitch Black */
+  --bg-card: #201113;           /* Dark Bordeaux Tint (derived from Night Bordeaux) */
+  --border-color: #5a2328;      /* Night Bordeaux */
+  --text-primary: #c8bfc7;      /* Pale Slate */
+  --text-secondary: #8a7e72;    /* Grey Olive */
+  --accent-color: #7a9b76;      /* Sage Green */
+  --arrow-inactive: #5a2328;    /* Night Bordeaux */
+  --out-circle-active: #c8bfc7; /* Pale Slate */
+  --drawer-bg: #14090a;         /* Deep Pitch Black Tint */
+  --drawer-card: #201113;       /* Dark Bordeaux Tint */
+  --drawer-border: #5a2328;     /* Night Bordeaux */
+  --shadow-color: rgba(0, 0, 0, 0.75);
+  --toast-bg: #5a2328;        /* Night Bordeaux */
+  --toast-text: #c8bfc7;        /* Pale Slate */
+  --toast-badge-bg: #7a9b76;  /* Sage Green */
+  --toast-badge-text: #090302;  /* Pitch Black */
+  --preview-bg: #160a0c;      /* Subdued Dark Background */
+  --preview-border: #5a2328;   /* Night Bordeaux */
 }
 
 body[data-theme="frost"] {
-  --bg-body: #080f18;
-  --bg-card: #0f1c2c;
-  --border-color: #7dd3fc;
-  --text-primary: #f0f9ff;
-  --text-secondary: #94a3b8;
-  --accent-color: #38bdf8;
-  --arrow-inactive: #1e3a5f;
-  --out-circle-active: #38bdf8;
-  --drawer-bg: #0d1826;
-  --drawer-card: #142438;
-  --drawer-border: #1f3755;
+  --bg-body: #0d111d;           /* Deep dark navy tint (derived from Electric Sapphire) */
+  --bg-card: #171d2e;           /* Dark slate blue card background */
+  --border-color: #be6e46;      /* Cinnamon Wood */
+  --text-primary: #e7f9a9;      /* Lime Cream */
+  --text-secondary: #c8bfc7;    /* Pale Slate */
+  --accent-color: #5465ff;      /* Electric Sapphire */
+  --arrow-inactive: #252e46;    /* Muted navy blue */
+  --out-circle-active: #54c6eb; /* Sky Aqua */
+  --drawer-bg: #111624;         /* Dark background for drawer */
+  --drawer-card: #171d2e;       /* Card background inside drawer */
+  --drawer-border: #be6e46;     /* Cinnamon Wood */
   --shadow-color: rgba(0, 0, 0, 0.65);
-  --toast-bg: #142438;
-  --toast-text: #f0f9ff;
-  --toast-badge-bg: #38bdf8;
-  --toast-badge-text: #080f18;
-  --preview-bg: #0b1420;
-  --preview-border: #1f3755;
+  --toast-bg: #171d2e;          /* Dark card base for toast */
+  --toast-text: #e7f9a9;        /* Lime Cream */
+  --toast-badge-bg: #5465ff;    /* Electric Sapphire */
+  --toast-badge-text: #e7f9a9;  /* Lime Cream */
+  --preview-bg: #111624;        /* Dark preview backdrop */
+  --preview-border: #54c6eb;    /* Sky Aqua */
 }
-
 body[data-theme="clay"] {
-  --bg-body: #1c0e09;
-  --bg-card: #2c1710;
-  --border-color: #fed7aa;
-  --text-primary: #ffedd5;
-  --text-secondary: #fb923c;
-  --accent-color: #ea580c;
-  --arrow-inactive: #4a271b;
-  --out-circle-active: #ea580c;
-  --drawer-bg: #26130d;
-  --drawer-card: #361c14;
-  --drawer-border: #572e20;
-  --shadow-color: rgba(0, 0, 0, 0.65);
-  --toast-bg: #361c14;
-  --toast-text: #ffedd5;
-  --toast-badge-bg: #ea580c;
-  --toast-badge-text: #ffffff;
-  --preview-bg: #1f0f0a;
-  --preview-border: #572e20;
+  --bg-body: #183642;           /* Jet Black (Dark Teal Base) */
+  --bg-card: #204555;           /* Lighter Teal Tint for cards */
+  --border-color: #018e42;      /* Sea Green */
+  --text-primary: #ffffff;      /* Pure White for optimal legibility */
+  --text-secondary: #88d9e6;    /* Frosted Blue */
+  --accent-color: #f7d002;      /* Gold */
+  --arrow-inactive: #2b5567;    /* Muted dark teal */
+  --out-circle-active: #f7d002; /* Gold */
+  --drawer-bg: #142e39;         /* Darker Teal Tint for drawer background */
+  --drawer-card: #204555;       /* Lighter Teal Tint for drawer cards */
+  --drawer-border: #018e42;     /* Sea Green */
+  --shadow-color: rgba(0, 0, 0, 0.7);
+  --toast-bg: #204555;          /* Card teal base for toast */
+  --toast-text: #ffffff;        /* White text */
+  --toast-badge-bg: #b8336a;    /* Berry Crush */
+  --toast-badge-text: #ffffff;  /* White badge text */
+  --preview-bg: #142e39;        /* Dark preview backdrop */
+  --preview-border: #88d9e6;    /* Frosted Blue */
 }
 
 * {
@@ -1295,9 +1425,9 @@ button {
 .theme-palette-card.dark .palette-swatch.card { background-color: #12151c; }
 .theme-palette-card.dark .palette-swatch.accent { background-color: #10b981; }
 
-.theme-palette-card.ballpark .palette-swatch.bg { background-color: #06170f; }
-.theme-palette-card.ballpark .palette-swatch.card { background-color: #0d281a; }
-.theme-palette-card.ballpark .palette-swatch.accent { background-color: #f59e0b; }
+.theme-palette-card.ballpark .palette-swatch.bg { background-color: #1c1521; }
+.theme-palette-card.ballpark .palette-swatch.card { background-color: #2f2235; }
+.theme-palette-card.ballpark .palette-swatch.accent { background-color: #60495a; }
 
 .theme-palette-card.royal .palette-swatch.bg { background-color: #060e1b; }
 .theme-palette-card.royal .palette-swatch.card { background-color: #0f1c32; }
@@ -1307,21 +1437,46 @@ button {
 .theme-palette-card.vintage .palette-swatch.card { background-color: #f9f5eb; }
 .theme-palette-card.vintage .palette-swatch.accent { background-color: #c2410c; }
 
-.theme-palette-card.sunset .palette-swatch.bg { background-color: #140b0b; }
-.theme-palette-card.sunset .palette-swatch.card { background-color: #221213; }
-.theme-palette-card.sunset .palette-swatch.accent { background-color: #f59e0b; }
+.theme-palette-card.sunset .palette-swatch.bg { background-color: #fff4db; }
+.theme-palette-card.sunset .palette-swatch.card { background-color: #ffebd0; }
+.theme-palette-card.sunset .palette-swatch.accent { background-color: #b8336a; }
 
-.theme-palette-card.neon .palette-swatch.bg { background-color: #0a0714; }
-.theme-palette-card.neon .palette-swatch.card { background-color: #150f29; }
-.theme-palette-card.neon .palette-swatch.accent { background-color: #ec4899; }
+.theme-palette-card.neon .palette-swatch.bg { background-color: #090302; }
+.theme-palette-card.neon .palette-swatch.card { background-color: #201113; }
+.theme-palette-card.neon .palette-swatch.accent { background-color: #7a9b76; }
 
-.theme-palette-card.frost .palette-swatch.bg { background-color: #080f18; }
-.theme-palette-card.frost .palette-swatch.card { background-color: #0f1c2c; }
-.theme-palette-card.frost .palette-swatch.accent { background-color: #38bdf8; }
+.theme-palette-card.frost .palette-swatch.bg { background-color: #0d111d; }
+.theme-palette-card.frost .palette-swatch.card { background-color: #171d2e; }
+.theme-palette-card.frost .palette-swatch.accent { background-color: #5465ff; }
 
-.theme-palette-card.clay .palette-swatch.bg { background-color: #1c0e09; }
-.theme-palette-card.clay .palette-swatch.card { background-color: #2c1710; }
-.theme-palette-card.clay .palette-swatch.accent { background-color: #ea580c; }
+.theme-palette-card.clay .palette-swatch.bg { background-color: #183642; }
+.theme-palette-card.clay .palette-swatch.card { background-color: #204555; }
+.theme-palette-card.clay .palette-swatch.accent { background-color: #f7d002; }
+
+/* New Palette Theme Colors */
+.theme-palette-card.powder-dusk .palette-swatch.bg { background-color: #252b3c; }
+.theme-palette-card.powder-dusk .palette-swatch.card { background-color: #3a405a; }
+.theme-palette-card.powder-dusk .palette-swatch.accent { background-color: #99b2dd; }
+
+.theme-palette-card.carrot-peach .palette-swatch.bg { background-color: #f8dda4; }
+.theme-palette-card.carrot-peach .palette-swatch.card { background-color: #fff2d6; }
+.theme-palette-card.carrot-peach .palette-swatch.accent { background-color: #f9a03f; }
+
+.theme-palette-card.french-tangerine .palette-swatch.bg { background-color: #243156; }
+.theme-palette-card.french-tangerine .palette-swatch.card { background-color: #324376; }
+.theme-palette-card.french-tangerine .palette-swatch.accent { background-color: #f68e5f; }
+
+.theme-palette-card.royal-pollen .palette-swatch.bg { background-color: #1e41c4; }
+.theme-palette-card.royal-pollen .palette-swatch.card { background-color: #2f52e0; }
+.theme-palette-card.royal-pollen .palette-swatch.accent { background-color: #bced09; }
+
+.theme-palette-card.majorelle-grape .palette-swatch.bg { background-color: #512dc9; }
+.theme-palette-card.majorelle-grape .palette-swatch.card { background-color: #623cea; }
+.theme-palette-card.majorelle-grape .palette-swatch.accent { background-color: #e7dfc6; }
+
+.theme-palette-card.coffee-seagrass .palette-swatch.bg { background-color: #13070c; }
+.theme-palette-card.coffee-seagrass .palette-swatch.card { background-color: #221213; }
+.theme-palette-card.coffee-seagrass .palette-swatch.accent { background-color: #ff6f59; }
 
 .theme-title {
   font-size: 11px;
@@ -2748,4 +2903,47 @@ body.in-theme-transition * {
     transform: translateY(115vh) rotate(540deg);
     opacity: 0;
   }
+}
+
+/* Custom Scrollbar for Settings & Advanced Tools Drawers */
+.settings-drawer::-webkit-scrollbar,
+.drawer-body::-webkit-scrollbar,
+.advanced-drawer-body::-webkit-scrollbar,
+.logged-hits-list::-webkit-scrollbar {
+  display: block !important;
+  width: 6px !important;
+  height: 6px !important;
+}
+
+.settings-drawer::-webkit-scrollbar-track,
+.drawer-body::-webkit-scrollbar-track,
+.advanced-drawer-body::-webkit-scrollbar-track,
+.logged-hits-list::-webkit-scrollbar-track {
+  background: var(--drawer-card);
+  border-radius: 3px;
+}
+
+.settings-drawer::-webkit-scrollbar-thumb,
+.drawer-body::-webkit-scrollbar-thumb,
+.advanced-drawer-body::-webkit-scrollbar-thumb,
+.logged-hits-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 3px;
+  opacity: 0.8;
+}
+
+.settings-drawer::-webkit-scrollbar-thumb:hover,
+.drawer-body::-webkit-scrollbar-thumb:hover,
+.advanced-drawer-body::-webkit-scrollbar-thumb:hover,
+.logged-hits-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Firefox scrollbar support */
+.settings-drawer,
+.drawer-body,
+.advanced-drawer-body,
+.logged-hits-list {
+  scrollbar-width: thin !important;
+  scrollbar-color: var(--border-color) var(--drawer-card) !important;
 }
