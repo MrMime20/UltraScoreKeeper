@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Baseball Score Keeper</title>
+  <meta name="description" content="A baseball score keeper application.">
+  <meta property="og:title" content="baseball score keeper">
+  <meta property="og:description" content="A baseball score keeper application.">
+  <link rel="stylesheet" href="styles.css">
+  <!-- Font Awesome for Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <div class="scoreboard-container">
+    
+    <!-- Top Row Header -->
+    <header class="top-row">
+      <button class="icon-btn" id="share-btn" aria-label="Share Game Score" title="Share Game Score">
+        <i class="fa-solid fa-share-nodes"></i>
+      </button>
+      
+      <!-- Interactive Compact Timer Display -->
+      <button type="button" class="timer-display" id="timer-display" aria-label="Game Clock: Tap to pause or resume" title="Tap to pause or resume">
+        <span class="timer-status-badge" id="timer-status-badge">
+          <i class="fa-solid fa-play" id="timer-icon"></i>
+        </span>
+        <span class="timer-digits" id="timer">00:00:00</span>
+      </button>
+      
+      <button class="icon-btn" id="settings-btn" aria-label="Game Settings" title="Settings & Themes">
+        <i class="fa-solid fa-gear"></i>
+      </button>
+    </header>
+
+    <!-- Main Score Card -->
+    <main class="score-card">
+      <div class="scores">
+        <button class="score-num" id="home-score" title="Tap or swipe up to add run; swipe down to remove">0</button>
+        <span class="score-dash">-</span>
+        <button class="score-num" id="away-score" title="Tap or swipe up to add run; swipe down to remove">0</button>
+      </div>
+      <div class="labels" id="team-labels-container">
+        <span class="team-label" id="home-label" title="Click to set Home on offense">Home</span>
+        <span class="team-label" id="away-label" title="Click to set Away on offense">Away</span>
+        <!-- Physical Sliding Underline Indicator -->
+        <div class="sliding-underline" id="batting-underline" aria-hidden="true"></div>
+      </div>
+    </main>
+
+    <!-- Inning Transition / Side Retired Visual Indicator -->
+    <div class="inning-transition-toast" id="inning-toast" role="status" aria-live="polite">
+      <span class="toast-badge" id="toast-badge">3 OUTS</span>
+      <span class="toast-text" id="toast-message">CHANGE SIDES</span>
+    </div>
+
+    <!-- Bottom Controls Row -->
+    <footer class="bottom-row">
+      <!-- Outs Selector Container -->
+      <div class="outs-container" id="outs-container" title="Tap circle to set outs">
+        <button type="button" class="out-circle" data-out="1" aria-label="Out 1"></button>
+        <button type="button" class="out-circle" data-out="2" aria-label="Out 2"></button>
+        <button type="button" class="out-circle" data-out="3" aria-label="Out 3"></button>
+      </div>
+
+      <!-- Inning Stepper Container -->
+      <div class="inning-container" id="inning-container" title="Tap to advance half-inning; hold to step back">
+        <span class="inning-num" id="inning-val" aria-label="Current Inning">1</span>
+        <div class="inning-arrows">
+          <button type="button" class="arrow-btn active" id="inning-up" aria-label="Top of Inning" title="Top of Inning">
+            <i class="fa-solid fa-caret-up"></i>
+          </button>
+          <button type="button" class="arrow-btn" id="inning-down" aria-label="Bottom of Inning" title="Bottom of Inning">
+            <i class="fa-solid fa-caret-down"></i>
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Advanced Tools Button -->
+    <button type="button" class="advanced-tools-btn" id="advanced-tools-btn" aria-label="Advanced Tools" title="Advanced Tools">
+      <i class="fa-solid fa-screwdriver-wrench"></i>
+      <span>Advanced Tools</span>
+    </button>
+
+    <!-- Settings Rollout Drawer & Backdrop -->
+    <div class="settings-backdrop" id="settings-backdrop" aria-hidden="true">
+      <div class="settings-drawer" id="settings-drawer" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="drawer-header">
+          <div class="drawer-handle-bar"></div>
+          <div class="drawer-title-row">
+            <h2 id="settings-title"><i class="fa-solid fa-gear"></i> Settings</h2>
+            <button type="button" class="close-drawer-btn" id="close-settings-btn" aria-label="Close Settings">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="drawer-body">
+          <!-- Themes Grid -->
+          <div class="settings-group">
+            <label class="group-label">Color Theme</label>
+            <div class="themes-grid" id="themes-grid">
+              <button type="button" class="theme-card active" data-theme="light">
+                <div class="theme-palette-card light">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Classic Light</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="dark">
+                <div class="theme-palette-card dark">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Night Game</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="ballpark">
+                <div class="theme-palette-card ballpark">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Ballpark Green</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="royal">
+                <div class="theme-palette-card royal">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Royal Navy</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="vintage">
+                <div class="theme-palette-card vintage">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Vintage Leather</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="sunset">
+                <div class="theme-palette-card sunset">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Sunset Amber</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="neon">
+                <div class="theme-palette-card neon">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Cyber Neon</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="frost">
+                <div class="theme-palette-card frost">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Frost Slate</span>
+              </button>
+              <button type="button" class="theme-card" data-theme="clay">
+                <div class="theme-palette-card clay">
+                  <span class="palette-swatch bg"></span>
+                  <span class="palette-swatch card"></span>
+                  <span class="palette-swatch accent"></span>
+                </div>
+                <span class="theme-title">Diamond Clay</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Preferences (Haptic Feedback) -->
+          <div class="settings-group">
+            <label class="group-label">Preferences</label>
+            <div class="settings-toggle-row">
+              <div class="toggle-text-block">
+                <span class="toggle-title">Haptic Feedback</span>
+                <span class="toggle-desc">Vibrate on taps, score changes & side flips</span>
+              </div>
+              <label class="apple-switch" title="Toggle haptic vibration">
+                <input type="checkbox" id="haptic-toggle" checked />
+                <span class="apple-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Team Names -->
+          <div class="settings-group">
+            <label class="group-label">Team Names</label>
+            <div class="team-inputs-row">
+              <div class="input-block">
+                <label for="home-name-input">Home Team</label>
+                <input type="text" id="home-name-input" value="Home" maxlength="16" autocomplete="off" />
+              </div>
+              <div class="input-block">
+                <label for="away-name-input">Away Team</label>
+                <input type="text" id="away-name-input" value="Away" maxlength="16" autocomplete="off" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Game Clock -->
+          <div class="settings-group">
+            <label class="group-label">Game Clock</label>
+            <div class="actions-row">
+              <button type="button" class="action-btn" id="modal-timer-toggle-btn">
+                <i class="fa-solid fa-pause" id="modal-timer-icon"></i>
+                <span id="modal-timer-text">Pause Clock</span>
+              </button>
+              <button type="button" class="action-btn reset" id="modal-timer-reset-btn">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Reset (00:00)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Game Reset Actions -->
+          <div class="settings-group">
+            <label class="group-label">Score Management</label>
+            <div class="actions-row">
+              <button type="button" class="action-btn" id="clear-runs-btn">
+                <i class="fa-solid fa-eraser"></i>
+                <span>Reset Scores</span>
+              </button>
+              <button type="button" class="action-btn danger" id="reset-game-btn">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Start New Game</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Share Menu Rollout Drawer & Backdrop -->
+    <div class="settings-backdrop" id="share-backdrop" aria-hidden="true">
+      <div class="settings-drawer share-drawer" id="share-drawer" role="dialog" aria-modal="true" aria-labelledby="share-title">
+        <div class="drawer-header">
+          <div class="drawer-handle-bar"></div>
+          <div class="drawer-title-row">
+            <h2 id="share-title"><i class="fa-solid fa-share-nodes"></i> Share Game</h2>
+            <button type="button" class="close-drawer-btn" id="close-share-btn" aria-label="Close Share Menu">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="drawer-body">
+          <!-- Summary Type Selection -->
+          <div class="settings-group">
+            <label class="group-label">Format</label>
+            <div class="summary-type-grid" id="summary-type-grid">
+              <button type="button" class="summary-card active" data-format="basic">
+                <i class="fa-solid fa-calculator"></i>
+                <div class="summary-card-info">
+                  <span class="summary-card-name">Quick Score</span>
+                  <span class="summary-card-desc">Team runs</span>
+                </div>
+              </button>
+              <button type="button" class="summary-card" data-format="standard">
+                <i class="fa-solid fa-baseball-bat-ball"></i>
+                <div class="summary-card-info">
+                  <span class="summary-card-name">Game Status</span>
+                  <span class="summary-card-desc">Score, inning & outs</span>
+                </div>
+              </button>
+              <button type="button" class="summary-card" data-format="broadcast">
+                <i class="fa-solid fa-bullhorn"></i>
+                <div class="summary-card-info">
+                  <span class="summary-card-name">Live Sportscast</span>
+                  <span class="summary-card-desc">Play-by-play announcer call</span>
+                </div>
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Preview Box -->
+          <div class="settings-group">
+            <div class="preview-header-row">
+              <label class="group-label">Preview</label>
+              <div class="preview-actions">
+                <button type="button" class="copy-preview-btn" id="copy-preview-btn" title="Copy preview text">
+                  <i class="fa-solid fa-copy"></i> <span>Copy</span>
+                </button>
+              </div>
+            </div>
+            <div class="share-preview-box" id="share-preview-box">
+              <pre id="share-preview-text">Home 0 - 0 Away</pre>
+            </div>
+          </div>
+
+          <!-- Sharing Channels (No WhatsApp, No X/Post) -->
+          <div class="settings-group">
+            <label class="group-label">Send Score</label>
+            <div class="share-channels-grid clean-channels-grid">
+              <button type="button" class="share-channel-btn native" id="share-native-btn" title="Share via device">
+                <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                <span>Share...</span>
+              </button>
+              <button type="button" class="share-channel-btn sms" id="share-sms-btn" title="Send as text message">
+                <i class="fa-solid fa-comment-sms"></i>
+                <span>Message</span>
+              </button>
+              <button type="button" class="share-channel-btn email" id="share-email-btn" title="Share via email">
+                <i class="fa-solid fa-envelope"></i>
+                <span>Email</span>
+              </button>
+              <button type="button" class="share-channel-btn copy" id="share-copy-btn" title="Copy score to clipboard">
+                <i class="fa-solid fa-copy"></i>
+                <span>Copy Score</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Advanced Tools Rollout Drawer & Backdrop -->
+    <div class="settings-backdrop" id="advanced-backdrop" aria-hidden="true">
+      <div class="settings-drawer advanced-drawer" id="advanced-drawer" role="dialog" aria-modal="true" aria-labelledby="advanced-title">
+        <div class="drawer-header">
+          <div class="drawer-handle-bar"></div>
+          <div class="drawer-title-row">
+            <h2 id="advanced-title"><i class="fa-solid fa-screwdriver-wrench"></i> Advanced Tools</h2>
+            <button type="button" class="close-drawer-btn" id="close-advanced-btn" aria-label="Close Advanced Tools">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="drawer-body advanced-drawer-body">
+          <div class="canvas-modules-list" id="canvas-modules-list">
+
+            <!-- Module 1: Hit Log (Canvas Module Style) -->
+            <div class="canvas-module open" id="module-hit-log">
+              <div class="module-header" id="module-hit-log-header" role="button" tabindex="0" aria-expanded="true">
+                <div class="module-header-left">
+                  <i class="fa-solid fa-chevron-down module-chevron" id="chevron-hit-log"></i>
+                  <span class="module-title-text"><i class="fa-solid fa-baseball"></i> Hit Log</span>
+                </div>
+                <div class="module-header-right">
+                  <span class="module-badge" id="hit-log-badge">0 Logged</span>
+                </div>
+              </div>
+
+              <div class="module-collapse-wrapper" id="module-hit-log-wrapper">
+                <div class="module-body" id="module-hit-log-body">
+                  <!-- Minimalist Hit Logging Form -->
+                  <div class="hit-form-card">
+
+                    <!-- Player Name/Number & Outcome Row -->
+                    <div class="hit-inputs-row">
+                      <div class="hit-field-block">
+                        <label for="hit-player-input" class="hit-field-label">Player Name / #</label>
+                        <input type="text" id="hit-player-input" class="hit-text-input" placeholder="e.g. #7 Smith" maxlength="24" autocomplete="off" />
+                      </div>
+
+                      <div class="hit-field-block">
+                        <label for="hit-outcome-select" class="hit-field-label">Outcome</label>
+                        <select id="hit-outcome-select" class="hit-dropdown">
+                          <option value="Single">Single (1B)</option>
+                          <option value="Double">Double (2B)</option>
+                          <option value="Triple">Triple (3B)</option>
+                          <option value="Home Run">Home Run (HR)</option>
+                          <option value="Flyout">Flyout (Out)</option>
+                          <option value="Groundout">Groundout (Out)</option>
+                          <option value="Strikeout">Strikeout (K)</option>
+                          <option value="Walk">Walk (BB)</option>
+                          <option value="Error - 1st">Reached 1st on Error</option>
+                          <option value="Error - 2nd">Reached 2nd on Error</option>
+                          <option value="Error - 3rd">Reached 3rd on Error</option>
+                          <option value="Foul Ball">Foul Ball</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <!-- Interactive Baseball Diamond Section -->
+                    <div class="diamond-section-block" id="diamond-section-block">
+                      <div class="diamond-header-row">
+                        <label class="hit-field-label">Field Location</label>
+                        <span class="hit-location-tag" id="hit-location-tag">Second Base (2B)</span>
+                      </div>
+
+                      <!-- Interactive Baseball Diamond (Snug Box Fitted to Field) -->
+                      <div class="stadium-viewport" id="stadium-viewport" title="Tap field to mark hit location">
+                        <div id="stadium">
+                          <div id="field" class="mowed-grass"></div>
+                          <div id="in-field"></div>
+                          <div id="in-field-grass" class="mowed-grass"></div>
+                          <div id="batting-circle"></div>
+                          <div id="first-base" class="base">
+                            <div class="pulse"></div>
+                            <div class="action-area"></div>
+                          </div>
+                          <div id="second-base" class="base">
+                            <div class="pulse"></div>
+                            <div class="action-area"></div>
+                          </div>
+                          <div id="thrid-base" class="base">
+                            <div class="pulse"></div>
+                            <div class="action-area"></div>
+                          </div>
+                          <div id="home-plate">
+                            <div class="action-area"></div>
+                          </div>
+                          <div class="home-plate-pulse pulse"></div>
+                          <div id="base-lines"></div>
+                          <div id="pitchers-mound"></div>
+                          <div id="pitchers-plate"></div>
+                          <div id="first-circle" class="half-circle"></div>
+                          <div id="second-circle" class="half-circle"></div>
+                          <div id="third-circle" class="half-circle"></div>
+                          <div id="batters-box-right" class="batters-box"></div>
+                          <div id="batters-box-left" class="batters-box"></div>
+                          <div id="first-base-thing"></div>
+                          <!-- Ball Hit Marker -->
+                          <div id="stadium-hit-marker" class="stadium-ball-pin">
+                            <div class="ball-pin-core"><i class="fa-solid fa-baseball"></i></div>
+                            <div class="ball-pin-ring"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Informational Note for Walk / Strikeout (No Diamond Needed) -->
+                    <div class="no-diamond-msg" id="no-diamond-msg" style="display: none;">
+                      <i class="fa-solid fa-circle-info"></i>
+                      <span>No field location needed for Walk or Strikeout.</span>
+                    </div>
+
+                    <!-- Submit Log Button -->
+                    <button type="button" class="log-hit-submit-btn" id="log-hit-submit-btn">
+                      <i class="fa-solid fa-plus"></i>
+                      <span>Save Play</span>
+                    </button>
+                  </div>
+
+                  <!-- Logged Hits List (Supports click/hold and drag to reorder) -->
+                  <div class="logged-hits-wrapper">
+                    <div class="logged-hits-header">
+                      <div class="hits-header-title-wrap">
+                        <span class="logged-hits-title">Hit Log</span>
+                        <span class="reorder-hint-tag"><i class="fa-solid fa-arrows-up-down"></i> Hold & drag to reorder</span>
+                      </div>
+                      <button type="button" class="clear-hits-btn" id="clear-hits-btn" title="Clear all logged hits">Clear All</button>
+                    </div>
+                    <div class="logged-hits-list" id="logged-hits-list">
+                      <!-- Populated dynamically -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

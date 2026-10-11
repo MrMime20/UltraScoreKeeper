@@ -1,0 +1,6 @@
+{
+  "name": "baseball score keeper",
+  "description": "A baseball score keeper application.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
