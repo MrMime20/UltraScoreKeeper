@@ -2947,3 +2947,47 @@ body.in-theme-transition * {
   scrollbar-width: thin !important;
   scrollbar-color: var(--border-color) var(--drawer-card) !important;
 }
+
+/* Custom Wide Mobile Scrollbar for Settings & Advanced Tools Drawers */
+.settings-drawer::-webkit-scrollbar,
+.drawer-body::-webkit-scrollbar,
+.advanced-drawer-body::-webkit-scrollbar,
+.logged-hits-list::-webkit-scrollbar {
+  display: block !important;
+  width: 10px !important;
+  height: 10px !important;
+}
+
+.settings-drawer::-webkit-scrollbar-track,
+.drawer-body::-webkit-scrollbar-track,
+.advanced-drawer-body::-webkit-scrollbar-track,
+.logged-hits-list::-webkit-scrollbar-track {
+  background: var(--drawer-card);
+  border-radius: 6px;
+  margin: 4px;
+}
+
+.settings-drawer::-webkit-scrollbar-thumb,
+.drawer-body::-webkit-scrollbar-thumb,
+.advanced-drawer-body::-webkit-scrollbar-thumb,
+.logged-hits-list::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 6px;
+  border: 2px solid var(--drawer-card); /* Creates a neat inner spacing effect */
+}
+
+.settings-drawer::-webkit-scrollbar-thumb:hover,
+.drawer-body::-webkit-scrollbar-thumb:hover,
+.advanced-drawer-body::-webkit-scrollbar-thumb:hover,
+.logged-hits-list::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-color);
+}
+
+/* Firefox scrollbar support */
+.settings-drawer,
+.drawer-body,
+.advanced-drawer-body,
+.logged-hits-list {
+  scrollbar-width: auto !important;
+  scrollbar-color: var(--border-color) var(--drawer-card) !important;
+}
