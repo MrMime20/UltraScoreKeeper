@@ -1435,7 +1435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 1. Outside the field: past outfield fence top curve (dist > 620) or behind home plate bounds (dy < -25)
     // Clicks outside do NOT register; prompt the user to tap inside the field.
-    if (dist > 620 || dy < -25) {
+    if (dist > 680 || dy < -25) {
       return null;
     }
 
@@ -1447,7 +1447,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Fair Territory:
     // Infield dirt boundary: apex at ~475px distance from home, tapering to ~350px near foul lines
     const normAngle = Math.min(1, Math.abs(angleDeg) / 45);
-    const dirtRadius = 475 - (110 * Math.pow(normAngle, 1.3));
+    const dirtRadius = 515 - (110 * Math.pow(normAngle, 1.3));
 
     // A. INFIELD (dist <= dirtRadius)
     if (dist <= dirtRadius) {
